@@ -1,4 +1,5 @@
-# exclude everything except directory foo/bar
-.gitignore
 src/config.js
 out
+.idea/
+node_modules/
+package-lock.json
