@@ -1,4 +1,6 @@
+# uri and primaryKey of config.js should not be shared
 src/config.js
+
 out
 .idea/
 node_modules/
