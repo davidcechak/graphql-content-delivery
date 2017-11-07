@@ -4,8 +4,23 @@ const {
     GraphQLObjectType,
     GraphQLInt,
     GraphQLString,
-    GraphQLList
+    GraphQLList,
+    GraphQLUnionType,
+    GraphQLID
 } = require('graphql');
+
+const ElementValueType = new GraphQLUnionType({
+    name: 'ElementValue',
+    types: [ GraphQLString, GraphQLList ],
+    resolveType(value) {
+        if (value instanceof Array) {
+            return new GraphQLList(GraphQLString);
+        }
+        else {
+            return GraphQLString;
+        }
+    }
+});
 
 const ElementType = new GraphQLObjectType({
     name: 'Element',
@@ -15,7 +30,7 @@ const ElementType = new GraphQLObjectType({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         value: {
-            type: GraphQLString,
+            type: ElementValueType,
             // resolve: rootData => rootData.value instanceof Array ? Object.values(rootData.value) : rootData.value,
             resolve: rootData => rootData.value,
         },
@@ -27,7 +42,7 @@ const SystemType = new GraphQLObjectType({
     description: '...',
 
     fields: () => ({
-        id: { type: GraphQLString },
+        id: { type: GraphQLID },
         name: { type: GraphQLString },
         codename: { type: GraphQLString },
         type: { type: GraphQLString },
@@ -50,8 +65,8 @@ const ItemType = new GraphQLObjectType({
         search_metadata: { type: GraphQLString },
 
         // all arguments below have correct type
-        id: { type: GraphQLString },
-        project_id: { type: GraphQLString },
+        id: { type: GraphQLID },
+        project_id: { type: GraphQLID },
         elements: {
             type: new GraphQLList(ElementType),
             resolve: rootData => Object.values(rootData.elements)
@@ -81,8 +96,8 @@ module.exports = new GraphQLSchema({
                     search_metadata: { type: GraphQLString },
 
                     // all arguments below have correct type
-                    id: { type: GraphQLString },
-                    project_id: { type: GraphQLString },
+                    id: { type: GraphQLID },
+                    project_id: { type: GraphQLID },
 
                     _rid: { type: GraphQLString },
                     _self: { type: GraphQLString },
