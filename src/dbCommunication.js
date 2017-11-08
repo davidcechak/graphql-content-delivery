@@ -40,12 +40,14 @@ function readCollectionIfExists() {
     })
 }
 
-readCollectionIfExists();
+// readCollectionIfExists();
 
 export function getItem(id) {
     return new Promise((resolve, reject) => {
         client.queryDocuments(collectionUrl,
-            `SELECT * FROM Items items WHERE items.id='${id}'`)
+            `SELECT * 
+            FROM Items items 
+            WHERE items.id='${id}'`)
             .toArray((err, results) => {
                 if (err) {
                     console.log(JSON.stringify(err));
@@ -57,11 +59,11 @@ export function getItem(id) {
                     //     const obj = Object.values(result);
                     //     console.log(obj);
                     // }
-                    if (results == null){
+                    if (results == null) {
                         console.log("results == null");
                         // console.log(results[0]);
                     }
-                    else{
+                    else {
                         // console.log(results[0]);
                         resolve(results[0]);
                     }
@@ -73,22 +75,25 @@ export function getItem(id) {
 // const result = getItem();
 // result.then(x => console.log(x));
 
-export function getItems() {
+export function getItemsIds() {
     return new Promise((resolve, reject) => {
         client.queryDocuments(collectionUrl,
-            `SELECT * FROM Items items WHERE TABLE_NAME = 'id'`)
+            `SELECT {'id': items.id} 
+            FROM Items items`)
             .toArray((err, results) => {
                 if (err) {
                     console.log(JSON.stringify(err));
                 }
                 else {
-                    if (results == null){
+                    if (results == null) {
                         console.log("results == null");
                     }
-                    else{
+                    else {
                         resolve(results);
                     }
                 }
             })
     })
 }
+
+// getItemsIds().then(x => console.log(x));

@@ -1,4 +1,4 @@
-import { getItem, getItems } from "./dbCommunication";
+import { getItem, getItemsIds } from "./dbCommunication";
 const {
     GraphQLSchema,
     GraphQLObjectType,
@@ -9,32 +9,62 @@ const {
     GraphQLID
 } = require('graphql');
 
-const ElementValueType = new GraphQLUnionType({
-    name: 'ElementValue',
-    types: [ GraphQLString, GraphQLList ],
-    resolveType(value) {
-        if (value instanceof Array) {
-            return new GraphQLList(GraphQLString);
-        }
-        else {
-            return GraphQLString;
-        }
-    }
-});
 
-const ElementType = new GraphQLObjectType({
-    name: 'Element',
+const TextElementType = new GraphQLObjectType({
+    name: 'TextElement',
     description: '...',
 
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         value: {
-            type: ElementValueType,
-            // resolve: rootData => rootData.value instanceof Array ? Object.values(rootData.value) : rootData.value,
+            type: GraphQLString,
             resolve: rootData => rootData.value,
         },
     })
+});
+
+const Asset = new GraphQLObjectType({
+   name: 'Asset',
+
+   fields: () => ({
+    name: { type: GraphQLString },
+    type: { type: GraphQLString },
+    size: { type: GraphQLInt },
+    url: { type: GraphQLString },
+   })
+});
+
+const AssetElementType = new GraphQLObjectType({
+    name: 'AssetElement',
+    description: '...',
+
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+
+        /*
+        Alias 'assetContent' have to be used for 'value', because the field 'value'
+        returns conflicting types String and [Asset] in TextElementType and AssetElementType
+         */
+        assetContent: {
+            type: new GraphQLList(Asset),
+            resolve: rootData => Object.values(rootData.value),
+        },
+    })
+});
+
+const ElementType = new GraphQLUnionType({
+    name: 'Element',
+    types: [ TextElementType, AssetElementType ],
+    resolveType(element) {
+        if (element.type == 'text') {
+            return TextElementType;
+        }
+        if (element.type == 'asset') {
+            return AssetElementType;
+        }
+    }
 });
 
 const SystemType = new GraphQLObjectType({
@@ -80,6 +110,17 @@ const ItemType = new GraphQLObjectType({
     })
 });
 
+const WrappedItemIdType = new GraphQLObjectType({
+    name: 'WrappedItemId',
+
+    fields: () => ({
+        id: {
+            type: GraphQLString,
+            resolve: rootData => rootData.$1.id,
+        }
+    })
+});
+
 module.exports = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: 'Query',
@@ -106,11 +147,12 @@ module.exports = new GraphQLSchema({
                     _ts: { type: GraphQLInt },
                 },
                 // root - is parent data (if it is a nested structure)
-                resolve: (root, args) => getItem(args.id).then(x => x)
+                resolve: (root, args) => getItem(args.id).then(response => response)
             },
             itemsIds: {
-                type: new GraphQLList(GraphQLString),
-                resolve: (root, args) => getItems().then(x => x)
+                type: new GraphQLList(WrappedItemIdType),
+                args: {},
+                resolve: (root, args) => getItemsIds().then(response => response),
             }
         })
     })
