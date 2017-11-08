@@ -1,5 +1,5 @@
 # uri and primaryKey of config.js should not be shared
-src/config.js
+src/configSettings.js
 
 out
 .idea/
