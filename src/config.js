@@ -1,4 +1,4 @@
-import * as configSettings from "../out/config";
+import { configSettings } from "./configSettings.js";
 
 const config = {
     // uri and primaryKey should not be commit

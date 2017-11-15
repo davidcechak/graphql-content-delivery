@@ -1,4 +1,4 @@
-const config = require("./config");
+import * as config from "./config";
 const docdbClient = require("../node_modules/documentdb").DocumentClient;
 
 const client = new docdbClient(config.uri, { masterKey: config.primaryKey });
