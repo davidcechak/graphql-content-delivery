@@ -1,4 +1,5 @@
 import { getItem, getItemsIds } from "./dbCommunication";
+
 const {
     GraphQLSchema,
     GraphQLObjectType,
@@ -13,56 +14,289 @@ const {
 const TextElementType = new GraphQLObjectType({
     name: 'TextElement',
     description: '...',
-
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-        value: {
+
+        /*
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
+         */
+        text: {
             type: GraphQLString,
             resolve: rootData => rootData.value,
         },
     })
 });
 
-const Asset = new GraphQLObjectType({
-   name: 'Asset',
+const ModularContentElementType = new GraphQLObjectType({
+    name: 'ModularContentElement',
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+        /*
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
+         */
+        content: {
+            type: new GraphQLList(GraphQLString),
+            resolve: rootData => Object.values(rootData.value)
+        },
+    })
+});
 
-   fields: () => ({
-    name: { type: GraphQLString },
-    type: { type: GraphQLString },
-    size: { type: GraphQLInt },
-    url: { type: GraphQLString },
-   })
+const AssetType = new GraphQLObjectType({
+    name: 'Asset',
+    fields: () => ({
+        name: { type: GraphQLString },
+        type: { type: GraphQLString },
+        size: { type: GraphQLInt },
+        description: { type: GraphQLString },
+        url: { type: GraphQLString },
+    })
 });
 
 const AssetElementType = new GraphQLObjectType({
     name: 'AssetElement',
     description: '...',
-
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
 
         /*
-        Alias 'assetContent' have to be used for 'value', because the field 'value'
-        returns conflicting types String and [Asset] in TextElementType and AssetElementType
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
          */
         assetContent: {
-            type: new GraphQLList(Asset),
+            type: new GraphQLList(AssetType),
             resolve: rootData => Object.values(rootData.value),
         },
     })
 });
 
+const MultipleChoiceType = new GraphQLObjectType({
+    name: 'MultipleChoice',
+    fields: () => ({
+        name: { type: GraphQLString },
+        codename: { type: GraphQLString },
+
+    })
+});
+
+const MultipleChoiceElementType = new GraphQLObjectType({
+    name: 'MultipleChoiceElement',
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+
+        /*
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
+         */
+        multiple_choice_value: {
+            type: new GraphQLList(MultipleChoiceType),
+            resolve: rootData => Object.values(rootData.value),
+        },
+    })
+});
+
+const TaxonomyType = new GraphQLObjectType({
+    name: 'Taxonomy',
+    fields: () => ({
+        name: { type: GraphQLString },
+        codename: { type: GraphQLString },
+
+    })
+});
+
+const TaxonomyElementType = new GraphQLObjectType({
+    name: 'TaxonomyElement',
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+        taxonomy_group: { type: GraphQLString },
+
+        /*
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
+         */
+        taxonomy_value: {
+            type: new GraphQLList(TaxonomyType),
+            resolve: rootData => Object.values(rootData.value),
+        },
+    })
+});
+
+const UrlSlugElementType = new GraphQLObjectType({
+    name: 'UrlSlugElement',
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+
+        /*
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
+         */
+        url_slug_value: {
+            type: GraphQLString,
+            resolve: rootData => rootData.value,
+        },
+    })
+});
+
+const NumberElementType = new GraphQLObjectType({
+    name: 'NumberElement',
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+
+        /*
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
+         */
+        number_value: {
+            type: GraphQLString,
+            resolve: rootData => rootData.value,
+        },
+    })
+});
+
+const DateElementType = new GraphQLObjectType({
+    name: 'DateElement',
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+
+        /*
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
+         */
+        date_value: {
+            type: GraphQLString,
+            resolve: rootData => rootData.value,
+        },
+    })
+});
+
+const DateTimeElementType = new GraphQLObjectType({
+    name: 'DateTimeElement',
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+
+        /*
+        Instead of 'value' an alias have to be used, because for the field 'value'
+        there are conflicting types in the types of ElementType
+         */
+        dateTime_value: {
+            type: GraphQLString,
+            resolve: rootData => rootData.value,
+        },
+    })
+});
+
+const ImageType = new GraphQLObjectType({
+    name: 'Image',
+    fields: () => ({
+        image_id: { type: GraphQLID },
+        description: { type: GraphQLString },
+        url: { type: GraphQLString },
+    })
+});
+
+const LinkType = new GraphQLObjectType({
+    name: 'Link',
+    fields: () => ({
+        id: { type: GraphQLID },
+        type: { type: GraphQLString },
+        codename: { type: GraphQLString },
+        url_slug: { type: GraphQLString },
+    })
+});
+
+const RichTextElementType = new GraphQLObjectType({
+    name: 'RichTextElement',
+    description: '...',
+    fields: () => ({
+        type: { type: GraphQLString },
+        name: { type: GraphQLString },
+        // ToDO: Test if images actually works. In DB there are no data with not empty images
+        images: {
+            type: new GraphQLList(ImageType),
+            args: {
+                id: { type: GraphQLID },
+            },
+            // ToDO: Test if resolve works
+            resolve: (rootData, args) => {
+                if (args.id) {
+                    return new Array(rootData.images(args.id));
+                }
+                return Object.values(rootData.images);
+            }
+        },
+
+        /*
+        ToDO: What is the type of links? In the DB I have found only one example:
+        "id": "5e74e393-338f-4357-af18-0e153275a4d2;2f267f28-898d-4e1d-8e6e-c6fc4702e7f1",
+         */
+        links: {
+            type: new GraphQLList(LinkType),
+            resolve: rootData => {
+                const keys = Object.keys(rootData.links);
+                return keys.map(key => (Object.assign({ id: key }, rootData.links[key])));
+            }
+        },
+        modular_content: { type: new GraphQLList(GraphQLString) },
+        value: { type: GraphQLString }
+    })
+});
+
 const ElementType = new GraphQLUnionType({
     name: 'Element',
-    types: [ TextElementType, AssetElementType ],
+    types: [
+        TextElementType,
+        AssetElementType,
+        ModularContentElementType,
+        RichTextElementType,
+        DateTimeElementType,
+        DateElementType,
+        NumberElementType,
+        UrlSlugElementType,
+        TaxonomyElementType,
+        MultipleChoiceElementType
+    ],
     resolveType(element) {
-        if (element.type == 'text') {
-            return TextElementType;
-        }
-        if (element.type == 'asset') {
-            return AssetElementType;
+        switch (element.type) {
+            case 'text': {
+                return TextElementType;
+            }
+            case 'asset': {
+                return AssetElementType;
+            }
+            case 'modular_content': {
+                return ModularContentElementType;
+            }
+            case 'rich_text': {
+                return RichTextElementType;
+            }
+            case 'date_time': {
+                return DateTimeElementType;
+            }
+            case 'date': {
+                return DateElementType;
+            }
+            case 'number': {
+                return NumberElementType;
+            }
+            case 'url_slug': {
+                return UrlSlugElementType;
+            }
+            case 'taxonomy': {
+                return TaxonomyElementType;
+            }
+            case 'multiple_choice': {
+                return MultipleChoiceElementType;
+            }
         }
     }
 });
@@ -70,37 +304,39 @@ const ElementType = new GraphQLUnionType({
 const SystemType = new GraphQLObjectType({
     name: 'System',
     description: '...',
-
     fields: () => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
         codename: { type: GraphQLString },
+        language: { type: GraphQLString },
         type: { type: GraphQLString },
         sitemap_locations: { type: new GraphQLList(GraphQLString) },
         last_modified: { type: GraphQLString },
     })
 });
 
-const ItemType = new GraphQLObjectType({
-    name: 'Item',
+const ContentItemType = new GraphQLObjectType({
+    name: 'ContentItem',
     description: '...',
-
     fields: () => ({
         // types of arguments below have to be corrected
-        system: {
-            type: SystemType,
-            resolve: rootData => rootData.system
-        },
-        dependencies: { type: GraphQLString },
         search_metadata: { type: GraphQLString },
 
         // all arguments below have correct type
         id: { type: GraphQLID },
         project_id: { type: GraphQLID },
+        // ToDo: Is GraphQLID only for the primary key of the record or for every ID property (e.g. foreign key)
+        language_id: { type: GraphQLString },
+        compatible_languages: { type: new GraphQLList(GraphQLString) },
         elements: {
             type: new GraphQLList(ElementType),
             resolve: rootData => Object.values(rootData.elements)
         },
+        system: {
+            type: SystemType,
+            resolve: rootData => rootData.system
+        },
+        dependencies: { type: new GraphQLList(GraphQLString) },
 
         _rid: { type: GraphQLString },
         _self: { type: GraphQLString },
@@ -112,7 +348,6 @@ const ItemType = new GraphQLObjectType({
 
 const WrappedItemIdType = new GraphQLObjectType({
     name: 'WrappedItemId',
-
     fields: () => ({
         id: {
             type: GraphQLString,
@@ -125,26 +360,11 @@ module.exports = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: 'Query',
         description: '...',
-
         fields: () => ({
             item: {
-                type: ItemType,
+                type: ContentItemType,
                 args: {
-                    // types of arguments below have to be corrected
-                    elements: { type: GraphQLString },
-                    system: { type: GraphQLString },
-                    dependencies: { type: GraphQLString },
-                    search_metadata: { type: GraphQLString },
-
-                    // all arguments below have correct type
                     id: { type: GraphQLID },
-                    project_id: { type: GraphQLID },
-
-                    _rid: { type: GraphQLString },
-                    _self: { type: GraphQLString },
-                    _etag: { type: GraphQLString },
-                    _attachments: { type: GraphQLString },
-                    _ts: { type: GraphQLInt },
                 },
                 // root - is parent data (if it is a nested structure)
                 resolve: (root, args) => getItem(args.id).then(response => response)
@@ -168,5 +388,5 @@ const preprocessItemForSchema = (item) => {
         x.value = x.value instanceof Array ? x.value : [x.value];
         console.log(x);
     });
-    return Object.assign(item, ({ elements: { itemElements }}));
+    return Object.assign(item, ({ elements: { itemElements } }));
 };
