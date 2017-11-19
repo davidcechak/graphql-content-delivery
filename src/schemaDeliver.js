@@ -207,7 +207,7 @@ const ImageType = new GraphQLObjectType({
 const LinkType = new GraphQLObjectType({
     name: 'Link',
     fields: () => ({
-        id: { type: GraphQLID },
+        key: { type: GraphQLID },
         type: { type: GraphQLString },
         codename: { type: GraphQLString },
         url_slug: { type: GraphQLString },
@@ -243,7 +243,7 @@ const RichTextElementType = new GraphQLObjectType({
             type: new GraphQLList(LinkType),
             resolve: rootData => {
                 const keys = Object.keys(rootData.links);
-                return keys.map(key => (Object.assign({ id: key }, rootData.links[key])));
+                return keys.map(key => (Object.assign({ key: key }, rootData.links[key])));
             }
         },
         modular_content: { type: new GraphQLList(GraphQLString) },
@@ -303,7 +303,6 @@ const ElementType = new GraphQLUnionType({
 
 const SystemType = new GraphQLObjectType({
     name: 'System',
-    description: '...',
     fields: () => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
@@ -315,17 +314,46 @@ const SystemType = new GraphQLObjectType({
     })
 });
 
+const SystemMetadataType = new GraphQLObjectType({
+    name: 'SystemMetadata',
+    fields: () => ({
+        sitemap_locations: { type: new GraphQLList(GraphQLString) },
+    })
+});
+
+const ElementMetadataType = new GraphQLObjectType({
+    name: 'ElementsMetadata',
+    fields: () => ({
+        key: { type: GraphQLString },
+        value: { type: new GraphQLList(GraphQLString) },
+    })
+});
+
+const SearchMetadataType = new GraphQLObjectType({
+    name: 'SearchMetadata',
+    fields: () => ({
+        system: {
+            type: SystemMetadataType,
+            resolve: rootData => rootData.system
+        },
+        elements: {
+            type: new GraphQLList(ElementMetadataType),
+            resolve: rootData => {
+                const keys = Object.keys(rootData.elements);
+                return keys.map(key => (Object.assign({ key: key }, rootData.elements[key])));
+            }
+        }
+    })
+});
+
 const ContentItemType = new GraphQLObjectType({
     name: 'ContentItem',
     description: '...',
     fields: () => ({
-        // types of arguments below have to be corrected
-        search_metadata: { type: GraphQLString },
-
-        // all arguments below have correct type
         id: { type: GraphQLID },
         project_id: { type: GraphQLID },
-        // ToDo: Is GraphQLID only for the primary key of the record or for every ID property (e.g. foreign key)
+
+        // ToDo: Is GraphQLID only for the primary key of the record or for every ID property (e.g. foreign key)?
         language_id: { type: GraphQLString },
         compatible_languages: { type: new GraphQLList(GraphQLString) },
         elements: {
@@ -337,6 +365,7 @@ const ContentItemType = new GraphQLObjectType({
             resolve: rootData => rootData.system
         },
         dependencies: { type: new GraphQLList(GraphQLString) },
+        search_metadata: { type: SearchMetadataType },
 
         _rid: { type: GraphQLString },
         _self: { type: GraphQLString },
