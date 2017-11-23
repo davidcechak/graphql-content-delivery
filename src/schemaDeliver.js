@@ -1,4 +1,4 @@
-import { getItem, getProjectItems } from "./dbCommunication";
+import { getItemMemoized, getProjectItemsMemoized } from "./dbCommunication";
 
 const {
     GraphQLSchema,
@@ -386,7 +386,7 @@ module.exports = new GraphQLSchema({
                     id: { type: GraphQLID },
                 },
                 // root - is parent data (if it is a nested structure)
-                resolve: (root, args) => getItem(args.id).then(response => response)
+                resolve: (root, args) => getItemMemoized(args.id).then(response => response)
             },
             projectItems: {
                 type: new GraphQLList(ContentItemType),
@@ -394,7 +394,7 @@ module.exports = new GraphQLSchema({
                     project_id: { type: GraphQLID },
                     language_id: { type: GraphQLID },
                 },
-                resolve: (root, args) => getProjectItems(args.project_id, args.language_id).then(response => response),
+                resolve: (root, args) => getProjectItemsMemoized(args.project_id, args.language_id).then(response => response),
             }
         })
     })
