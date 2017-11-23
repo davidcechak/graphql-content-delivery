@@ -1,4 +1,4 @@
-import { getItem, getItemsIds } from "./dbCommunication";
+import { getItem, getProjectItems } from "./dbCommunication";
 
 const {
     GraphQLSchema,
@@ -375,16 +375,6 @@ const ContentItemType = new GraphQLObjectType({
     })
 });
 
-const WrappedItemIdType = new GraphQLObjectType({
-    name: 'WrappedItemId',
-    fields: () => ({
-        id: {
-            type: GraphQLString,
-            resolve: rootData => rootData.$1.id,
-        }
-    })
-});
-
 module.exports = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: 'Query',
@@ -398,10 +388,13 @@ module.exports = new GraphQLSchema({
                 // root - is parent data (if it is a nested structure)
                 resolve: (root, args) => getItem(args.id).then(response => response)
             },
-            itemsIds: {
-                type: new GraphQLList(WrappedItemIdType),
-                args: {},
-                resolve: (root, args) => getItemsIds().then(response => response),
+            projectItems: {
+                type: new GraphQLList(ContentItemType),
+                args: {
+                    project_id: { type: GraphQLID },
+                    language_id: { type: GraphQLID },
+                },
+                resolve: (root, args) => getProjectItems(args.project_id, args.language_id).then(response => response),
             }
         })
     })

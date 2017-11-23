@@ -1,4 +1,5 @@
 import * as config from "./config";
+
 const docdbClient = require("../node_modules/documentdb").DocumentClient;
 
 const client = new docdbClient(config.uri, { masterKey: config.primaryKey });
@@ -7,6 +8,7 @@ const HttpStatusCodes = { NOTFOUND: 404 };
 
 const databaseUrl = `dbs/${config.database.id}`;
 const collectionUrl = `${databaseUrl}/colls/${config.collection.id}`;
+const defaultId = "00000000-0000-0000-0000-000000000000";
 
 //dbs/123/colls/12/docs/1234
 
@@ -75,12 +77,31 @@ export function getItem(id) {
 // const result = getItem();
 // result.then(x => console.log(x));
 
-export function getItemsIds() {
+export function getProjectItems(projectId, languageId) {
     return new Promise((resolve, reject) => {
-        client.queryDocuments(collectionUrl,
-            `SELECT {'id': items.id} 
-            FROM Items items`)
-            .toArray((err, results) => {
+        const query = languageId ?
+            client.queryDocuments(collectionUrl,
+                `SELECT * 
+                FROM Items items 
+                WHERE items.project_id="${projectId}"
+                AND items.language_id="${languageId}"`)
+            : client.queryDocuments(collectionUrl,
+                `SELECT * 
+                FROM Items items 
+                WHERE 
+                    items.project_id="${projectId}"
+                OR 
+                    (items.project_id="${projectId}"
+                    AND items.language_id="${defaultId}")`);
+
+        if (languageId == null) {
+            console.log('langID is null')
+        }
+        else {
+            console.log('langID was given')
+        }
+
+        query.toArray((err, results) => {
                 if (err) {
                     console.log(JSON.stringify(err));
                 }
@@ -92,8 +113,8 @@ export function getItemsIds() {
                         resolve(results);
                     }
                 }
-            })
+            });
     })
 }
 
-// getItemsIds().then(x => console.log(x));
+// getProjectItems().then(x => console.log(x));
