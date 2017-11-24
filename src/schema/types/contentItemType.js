@@ -14,7 +14,9 @@ const ContentItemType = new GraphQLObjectType({
         compatible_languages: { type: new GraphQLList(GraphQLString) },
         elements: {
             type: new GraphQLList(ElementType),
-            resolve: rootData => Object.values(rootData.elements)
+            resolve: rootData => {
+                const keys = Object.keys(rootData.elements);
+                return keys.map(key => (Object.assign({ key: key }, rootData.elements[key])))},
         },
         system: {
             type: SystemType,
