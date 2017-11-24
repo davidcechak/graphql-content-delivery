@@ -66,7 +66,6 @@ const MultipleChoiceType = new GraphQLObjectType({
     fields: () => ({
         name: { type: GraphQLString },
         codename: { type: GraphQLString },
-
     })
 });
 
@@ -215,10 +214,10 @@ const RichTextElementType = new GraphQLObjectType({
     })
 });
 
-const ElementType = new GraphQLUnionType({
-    name: 'Element',
+const ContentItemElement = new GraphQLUnionType({
+    name: 'ContentItemElement',
     description: 'Instead of \'value\' an alias have to be used, because for the field \'value\'' +
-    'there are conflicting types in the types of ElementType',
+    'there are conflicting type in the type of ContentItemElement',
 
     types: [
         TextElementType,
@@ -268,4 +267,4 @@ const ElementType = new GraphQLUnionType({
     }
 });
 
-export {ElementType};
+export { ContentItemElement };

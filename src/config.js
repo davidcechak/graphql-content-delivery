@@ -9,8 +9,9 @@ const config = {
         "id": "Content"
     },
 
-    collection: {
-        "id": "Items"
+    collections: {
+        itemsId: 'Items',
+        typesId: 'Types',
     },
 };
 

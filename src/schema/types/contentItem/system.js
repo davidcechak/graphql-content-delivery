@@ -1,6 +1,6 @@
 import { GraphQLObjectType, GraphQLList, GraphQLString, GraphQLID } from 'graphql';
 
-const SystemType = new GraphQLObjectType({
+const System = new GraphQLObjectType({
     name: 'System',
     fields: () => ({
         id: { type: GraphQLID },
@@ -13,4 +13,4 @@ const SystemType = new GraphQLObjectType({
     })
 });
 
-export {SystemType}
+export {System}

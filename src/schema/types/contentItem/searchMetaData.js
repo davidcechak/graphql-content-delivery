@@ -1,6 +1,6 @@
 import { GraphQLString, GraphQLObjectType, GraphQLList } from "graphql";
 
-const ElementMetadataType = new GraphQLObjectType({
+const ElementMetadata = new GraphQLObjectType({
     name: 'ElementsMetadata',
     fields: () => ({
         key: { type: GraphQLString },
@@ -8,22 +8,22 @@ const ElementMetadataType = new GraphQLObjectType({
     })
 });
 
-const SystemMetadataType = new GraphQLObjectType({
+const SystemMetadata = new GraphQLObjectType({
     name: 'SystemMetadata',
     fields: () => ({
         sitemap_locations: { type: new GraphQLList(GraphQLString) },
     })
 });
 
-const SearchMetadataType = new GraphQLObjectType({
+const SearchMetadata = new GraphQLObjectType({
     name: 'SearchMetadata',
     fields: () => ({
         system: {
-            type: SystemMetadataType,
+            type: SystemMetadata,
             resolve: rootData => rootData.system
         },
         elements: {
-            type: new GraphQLList(ElementMetadataType),
+            type: new GraphQLList(ElementMetadata),
             resolve: rootData => {
                 const keys = Object.keys(rootData.elements);
                 return keys.map(key => (Object.assign({ key: key }, rootData.elements[key])));
@@ -32,4 +32,4 @@ const SearchMetadataType = new GraphQLObjectType({
     })
 });
 
-export {SearchMetadataType}
+export {SearchMetadata}

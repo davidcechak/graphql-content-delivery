@@ -1,9 +1,9 @@
 import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLList } from 'graphql';
-import {SystemType} from './systemType';
-import {ElementType} from './elementType';
-import {SearchMetadataType} from './searchMetaDataType';
+import {System} from './system';
+import {ContentItemElement} from './contentItemElement';
+import {SearchMetadata} from './searchMetaData';
 
-const ContentItemType = new GraphQLObjectType({
+const ContentItem = new GraphQLObjectType({
     name: 'ContentItem',
     fields: () => ({
         id: { type: GraphQLID },
@@ -13,17 +13,17 @@ const ContentItemType = new GraphQLObjectType({
         language_id: { type: GraphQLString },
         compatible_languages: { type: new GraphQLList(GraphQLString) },
         elements: {
-            type: new GraphQLList(ElementType),
+            type: new GraphQLList(ContentItemElement),
             resolve: rootData => {
                 const keys = Object.keys(rootData.elements);
                 return keys.map(key => (Object.assign({ key: key }, rootData.elements[key])))},
         },
         system: {
-            type: SystemType,
+            type: System,
             resolve: rootData => rootData.system
         },
         dependencies: { type: new GraphQLList(GraphQLString) },
-        search_metadata: { type: SearchMetadataType },
+        search_metadata: { type: SearchMetadata },
 
         // Properties with underscore are important for database or communication with it.
         // There is no use of them for the client.
@@ -35,4 +35,4 @@ const ContentItemType = new GraphQLObjectType({
     })
 });
 
-export { ContentItemType }
+export { ContentItem }

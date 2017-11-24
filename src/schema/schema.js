@@ -1,5 +1,10 @@
-import { getItemMemoized, getProjectItemsMemoized } from '../dbCommunication';
-import { ContentItemType } from './types/contentItemType';
+import { ContentItem } from './types/contentItem/contentItemType';
+import { ContentType } from "./types/contentType/contentType";
+import {
+    getContentItemMemoized,
+    getContentTypeMemoized,
+    getProjectItemsMemoized
+} from '../dbCommunication';
 import {
     GraphQLSchema,
     GraphQLObjectType,
@@ -11,21 +16,28 @@ const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: 'Query',
         fields: () => ({
-            item: {
-                type: ContentItemType,
+            contentItem: {
+                type: ContentItem,
                 args: {
                     id: { type: GraphQLID },
                 },
                 // root - is parent data (if it is a nested structure)
-                resolve: (root, args) => getItemMemoized(args.id).then(response => response)
+                resolve: (root, args) => getContentItemMemoized(args.id).then(response => response),
             },
-            projectItems: {
-                type: new GraphQLList(ContentItemType),
+            projectContentItems: {
+                type: new GraphQLList(ContentItem),
                 args: {
                     project_id: { type: GraphQLID },
                     language_id: { type: GraphQLID },
                 },
                 resolve: (root, args) => getProjectItemsMemoized(args.project_id, args.language_id).then(response => response),
+            },
+            contentType: {
+                type: ContentType,
+                args: {
+                    id: { type: GraphQLID },
+                },
+                resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
             }
         })
     })
