@@ -7,51 +7,63 @@ const {
     GraphQLUnionType
 } = require('graphql');
 
+const defaultElementObject = {
+    key: { type: GraphQLString },
+    type: { type: GraphQLString },
+    name: { type: GraphQLString },
+};
+
+const resolveToSingleValue = rootData => rootData.value;
+const resolveToMultipleValues = rootData => Object.values(rootData.value);
+
 const TextElementType = new GraphQLObjectType({
     name: 'TextElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        text: {
-            type: GraphQLString,
-            resolve: rootData => rootData.value,
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            text: {
+                type: GraphQLString,
+                resolve: rootData => rootData.value,
+            }
         },
-    })
+    )
 });
 
 const ModularContentElementType = new GraphQLObjectType({
     name: 'ModularContentElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        content: {
-            type: new GraphQLList(GraphQLString),
-            resolve: rootData => Object.values(rootData.value)
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            content: {
+                type: new GraphQLList(GraphQLString),
+                resolve: rootData => Object.values(rootData.value)
+            }
         },
-    })
+    )
 });
 
 const AssetType = new GraphQLObjectType({
     name: 'Asset',
-    fields: () => ({
-        name: { type: GraphQLString },
-        type: { type: GraphQLString },
-        size: { type: GraphQLInt },
-        description: { type: GraphQLString },
-        url: { type: GraphQLString },
-    })
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            size: { type: GraphQLInt },
+            description: { type: GraphQLString },
+            url: { type: GraphQLString },
+        })
 });
 
 const AssetElementType = new GraphQLObjectType({
     name: 'AssetElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        assetContent: {
-            type: new GraphQLList(AssetType),
-            resolve: rootData => Object.values(rootData.value),
-        },
-    })
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            name: { type: GraphQLString },
+            assetContent: {
+                type: new GraphQLList(AssetType),
+                resolve: rootData => Object.values(rootData.value),
+            },
+        })
 });
 
 const MultipleChoiceType = new GraphQLObjectType({
@@ -59,20 +71,19 @@ const MultipleChoiceType = new GraphQLObjectType({
     fields: () => ({
         name: { type: GraphQLString },
         codename: { type: GraphQLString },
-
     })
 });
 
 const MultipleChoiceElementType = new GraphQLObjectType({
     name: 'MultipleChoiceElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        multiple_choice_value: {
-            type: new GraphQLList(MultipleChoiceType),
-            resolve: rootData => Object.values(rootData.value),
-        },
-    })
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            multiple_choice_value: {
+                type: new GraphQLList(MultipleChoiceType),
+                resolve: rootData => Object.values(rootData.value),
+            },
+        })
 });
 
 const TaxonomyType = new GraphQLObjectType({
@@ -86,63 +97,63 @@ const TaxonomyType = new GraphQLObjectType({
 
 const TaxonomyElementType = new GraphQLObjectType({
     name: 'TaxonomyElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        taxonomy_group: { type: GraphQLString },
-        taxonomy_value: {
-            type: new GraphQLList(TaxonomyType),
-            resolve: rootData => Object.values(rootData.value),
-        },
-    })
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            taxonomy_group: { type: GraphQLString },
+            taxonomy_value: {
+                type: new GraphQLList(TaxonomyType),
+                resolve: rootData => Object.values(rootData.value),
+            },
+        })
 });
 
 const UrlSlugElementType = new GraphQLObjectType({
     name: 'UrlSlugElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        url_slug_value: {
-            type: GraphQLString,
-            resolve: rootData => rootData.value,
-        },
-    })
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            url_slug_value: {
+                type: GraphQLString,
+                resolve: rootData => rootData.value,
+            },
+        })
 });
 
 const NumberElementType = new GraphQLObjectType({
     name: 'NumberElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        number_value: {
-            type: GraphQLString,
-            resolve: rootData => rootData.value,
-        },
-    })
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            number_value: {
+                type: GraphQLString,
+                resolve: rootData => rootData.value,
+            },
+        })
 });
 
 const DateElementType = new GraphQLObjectType({
     name: 'DateElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        date_value: {
-            type: GraphQLString,
-            resolve: rootData => rootData.value,
-        },
-    })
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            date_value: {
+                type: GraphQLString,
+                resolve: rootData => rootData.value,
+            },
+        })
 });
 
 const DateTimeElementType = new GraphQLObjectType({
     name: 'DateTimeElement',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        dateTime_value: {
-            type: GraphQLString,
-            resolve: rootData => rootData.value,
-        },
-    })
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            dateTime_value: {
+                type: GraphQLString,
+                resolve: rootData => rootData.value,
+            },
+        })
 });
 
 const ImageType = new GraphQLObjectType({
@@ -166,39 +177,38 @@ const LinkType = new GraphQLObjectType({
 
 const RichTextElementType = new GraphQLObjectType({
     name: 'RichTextElement',
-    description: '...',
-    fields: () => ({
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        // ToDO: Test if images actually works. In DB there are no data with not empty images
-        images: {
-            type: new GraphQLList(ImageType),
-            args: {
-                id: { type: GraphQLID },
-            },
-            // ToDO: Test if resolve works
-            resolve: (rootData, args) => {
-                if (args.id) {
-                    return new Array(rootData.images(args.id));
+    fields: () => Object.assign(
+        defaultElementObject,
+        {
+            // ToDO: Test if images actually works. In DB there are no data with not empty images
+            images: {
+                type: new GraphQLList(ImageType),
+                args: {
+                    id: { type: GraphQLID },
+                },
+                // ToDO: Test if resolve works
+                resolve: (rootData, args) => {
+                    if (args.id) {
+                        return new Array(rootData.images(args.id));
+                    }
+                    return Object.values(rootData.images);
                 }
-                return Object.values(rootData.images);
-            }
-        },
+            },
 
-        /*
-        ToDO: What is the type of links? In the DB I have found only one example:
-        "id": "5e74e393-338f-4357-af18-0e153275a4d2;2f267f28-898d-4e1d-8e6e-c6fc4702e7f1",
-         */
-        links: {
-            type: new GraphQLList(LinkType),
-            resolve: rootData => {
-                const keys = Object.keys(rootData.links);
-                return keys.map(key => (Object.assign({ key: key }, rootData.links[key])));
-            }
-        },
-        modular_content: { type: new GraphQLList(GraphQLString) },
-        value: { type: GraphQLString }
-    })
+            /*
+            ToDO: What is the type of links? In the DB I have found only one example:
+            "id": "5e74e393-338f-4357-af18-0e153275a4d2;2f267f28-898d-4e1d-8e6e-c6fc4702e7f1",
+             */
+            links: {
+                type: new GraphQLList(LinkType),
+                resolve: rootData => {
+                    const keys = Object.keys(rootData.links);
+                    return keys.map(key => (Object.assign({ key: key }, rootData.links[key])));
+                }
+            },
+            modular_content: { type: new GraphQLList(GraphQLString) },
+            value: { type: GraphQLString }
+        })
 });
 
 const ElementType = new GraphQLUnionType({
@@ -254,4 +264,4 @@ const ElementType = new GraphQLUnionType({
     }
 });
 
-export {ElementType};
+export { ElementType };
