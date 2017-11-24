@@ -7,6 +7,9 @@ const {
     GraphQLUnionType
 } = require('graphql');
 
+const resolveToSingleValue = rootData => rootData.value;
+const resolveToMultipleValues = rootData => Object.values(rootData.value);
+
 const TextElementType = new GraphQLObjectType({
     name: 'TextElement',
     fields: () => ({
@@ -14,7 +17,7 @@ const TextElementType = new GraphQLObjectType({
         name: { type: GraphQLString },
         text: {
             type: GraphQLString,
-            resolve: rootData => rootData.value,
+            resolve: resolveToSingleValue,
         },
     })
 });
@@ -26,7 +29,7 @@ const ModularContentElementType = new GraphQLObjectType({
         name: { type: GraphQLString },
         content: {
             type: new GraphQLList(GraphQLString),
-            resolve: rootData => Object.values(rootData.value)
+            resolve: resolveToMultipleValues
         },
     })
 });
@@ -49,7 +52,7 @@ const AssetElementType = new GraphQLObjectType({
         name: { type: GraphQLString },
         assetContent: {
             type: new GraphQLList(AssetType),
-            resolve: rootData => Object.values(rootData.value),
+            resolve: resolveToMultipleValues,
         },
     })
 });
@@ -70,7 +73,7 @@ const MultipleChoiceElementType = new GraphQLObjectType({
         name: { type: GraphQLString },
         multiple_choice_value: {
             type: new GraphQLList(MultipleChoiceType),
-            resolve: rootData => Object.values(rootData.value),
+            resolve: resolveToMultipleValues,
         },
     })
 });
@@ -92,7 +95,7 @@ const TaxonomyElementType = new GraphQLObjectType({
         taxonomy_group: { type: GraphQLString },
         taxonomy_value: {
             type: new GraphQLList(TaxonomyType),
-            resolve: rootData => Object.values(rootData.value),
+            resolve: resolveToMultipleValues,
         },
     })
 });
@@ -104,7 +107,7 @@ const UrlSlugElementType = new GraphQLObjectType({
         name: { type: GraphQLString },
         url_slug_value: {
             type: GraphQLString,
-            resolve: rootData => rootData.value,
+            resolve: resolveToSingleValue,
         },
     })
 });
@@ -116,7 +119,7 @@ const NumberElementType = new GraphQLObjectType({
         name: { type: GraphQLString },
         number_value: {
             type: GraphQLString,
-            resolve: rootData => rootData.value,
+            resolve: resolveToSingleValue,
         },
     })
 });
@@ -128,7 +131,7 @@ const DateElementType = new GraphQLObjectType({
         name: { type: GraphQLString },
         date_value: {
             type: GraphQLString,
-            resolve: rootData => rootData.value,
+            resolve: resolveToSingleValue,
         },
     })
 });
@@ -140,7 +143,7 @@ const DateTimeElementType = new GraphQLObjectType({
         name: { type: GraphQLString },
         dateTime_value: {
             type: GraphQLString,
-            resolve: rootData => rootData.value,
+            resolve: resolveToSingleValue,
         },
     })
 });
