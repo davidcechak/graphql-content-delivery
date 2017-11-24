@@ -1,19 +1,14 @@
-import { getItemMemoized, getProjectItemsMemoized } from "./dbCommunication";
-
 const {
-    GraphQLSchema,
     GraphQLObjectType,
     GraphQLInt,
     GraphQLString,
     GraphQLList,
-    GraphQLUnionType,
-    GraphQLID
+    GraphQLID,
+    GraphQLUnionType
 } = require('graphql');
-
 
 const TextElementType = new GraphQLObjectType({
     name: 'TextElement',
-    description: '...',
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
@@ -49,7 +44,6 @@ const AssetType = new GraphQLObjectType({
 
 const AssetElementType = new GraphQLObjectType({
     name: 'AssetElement',
-    description: '...',
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
@@ -260,116 +254,4 @@ const ElementType = new GraphQLUnionType({
     }
 });
 
-const SystemType = new GraphQLObjectType({
-    name: 'System',
-    fields: () => ({
-        id: { type: GraphQLID },
-        name: { type: GraphQLString },
-        codename: { type: GraphQLString },
-        language: { type: GraphQLString },
-        type: { type: GraphQLString },
-        sitemap_locations: { type: new GraphQLList(GraphQLString) },
-        last_modified: { type: GraphQLString },
-    })
-});
-
-const SystemMetadataType = new GraphQLObjectType({
-    name: 'SystemMetadata',
-    fields: () => ({
-        sitemap_locations: { type: new GraphQLList(GraphQLString) },
-    })
-});
-
-const ElementMetadataType = new GraphQLObjectType({
-    name: 'ElementsMetadata',
-    fields: () => ({
-        key: { type: GraphQLString },
-        value: { type: new GraphQLList(GraphQLString) },
-    })
-});
-
-const SearchMetadataType = new GraphQLObjectType({
-    name: 'SearchMetadata',
-    fields: () => ({
-        system: {
-            type: SystemMetadataType,
-            resolve: rootData => rootData.system
-        },
-        elements: {
-            type: new GraphQLList(ElementMetadataType),
-            resolve: rootData => {
-                const keys = Object.keys(rootData.elements);
-                return keys.map(key => (Object.assign({ key: key }, rootData.elements[key])));
-            }
-        }
-    })
-});
-
-const ContentItemType = new GraphQLObjectType({
-    name: 'ContentItem',
-    description: '...',
-    fields: () => ({
-        id: { type: GraphQLID },
-        project_id: { type: GraphQLID },
-
-        // ToDo: Is GraphQLID only for the primary key of the record or for every ID property (e.g. foreign key)?
-        language_id: { type: GraphQLString },
-        compatible_languages: { type: new GraphQLList(GraphQLString) },
-        elements: {
-            type: new GraphQLList(ElementType),
-            resolve: rootData => Object.values(rootData.elements)
-        },
-        system: {
-            type: SystemType,
-            resolve: rootData => rootData.system
-        },
-        dependencies: { type: new GraphQLList(GraphQLString) },
-        search_metadata: { type: SearchMetadataType },
-
-        // Properties with underscore are important for database or communication with it.
-        // There is no use of them for the client.
-        _rid: { type: GraphQLString },
-        _self: { type: GraphQLString },
-        _etag: { type: GraphQLString },
-        _attachments: { type: GraphQLString },
-        _ts: { type: GraphQLInt },
-    })
-});
-
-module.exports = new GraphQLSchema({
-    query: new GraphQLObjectType({
-        name: 'Query',
-        description: '...',
-        fields: () => ({
-            item: {
-                type: ContentItemType,
-                args: {
-                    id: { type: GraphQLID },
-                },
-                // root - is parent data (if it is a nested structure)
-                resolve: (root, args) => getItemMemoized(args.id).then(response => response)
-            },
-            projectItems: {
-                type: new GraphQLList(ContentItemType),
-                args: {
-                    project_id: { type: GraphQLID },
-                    language_id: { type: GraphQLID },
-                },
-                resolve: (root, args) => getProjectItemsMemoized(args.project_id, args.language_id).then(response => response),
-            }
-        })
-    })
-});
-
-
-const preprocessItemForSchema = (item) => {
-    const elementsArray = Object.values(item.elements);
-    console.log(elementsArray);
-    // For the unification of item.elements[x].value type. It could be an array of strings or a string
-    const itemElements = elementsArray.map(x => {
-        console.log(x);
-        x.value = x.value instanceof Array ? x.value : [x.value];
-        console.log(x);
-    });
-    return Object.assign(item, ({ elements: { itemElements } }));
-};
+export {ElementType};
