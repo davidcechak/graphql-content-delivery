@@ -13,6 +13,7 @@ const resolveToMultipleValues = rootData => Object.values(rootData.value);
 const TextElementType = new GraphQLObjectType({
     name: 'TextElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         text: {
@@ -25,6 +26,7 @@ const TextElementType = new GraphQLObjectType({
 const ModularContentElementType = new GraphQLObjectType({
     name: 'ModularContentElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         content: {
@@ -37,6 +39,7 @@ const ModularContentElementType = new GraphQLObjectType({
 const AssetType = new GraphQLObjectType({
     name: 'Asset',
     fields: () => ({
+        key: { type: GraphQLString },
         name: { type: GraphQLString },
         type: { type: GraphQLString },
         size: { type: GraphQLInt },
@@ -48,6 +51,7 @@ const AssetType = new GraphQLObjectType({
 const AssetElementType = new GraphQLObjectType({
     name: 'AssetElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         assetContent: {
@@ -69,6 +73,7 @@ const MultipleChoiceType = new GraphQLObjectType({
 const MultipleChoiceElementType = new GraphQLObjectType({
     name: 'MultipleChoiceElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         multiple_choice_value: {
@@ -90,6 +95,7 @@ const TaxonomyType = new GraphQLObjectType({
 const TaxonomyElementType = new GraphQLObjectType({
     name: 'TaxonomyElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         taxonomy_group: { type: GraphQLString },
@@ -103,6 +109,7 @@ const TaxonomyElementType = new GraphQLObjectType({
 const UrlSlugElementType = new GraphQLObjectType({
     name: 'UrlSlugElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         url_slug_value: {
@@ -115,6 +122,7 @@ const UrlSlugElementType = new GraphQLObjectType({
 const NumberElementType = new GraphQLObjectType({
     name: 'NumberElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         number_value: {
@@ -127,6 +135,7 @@ const NumberElementType = new GraphQLObjectType({
 const DateElementType = new GraphQLObjectType({
     name: 'DateElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         date_value: {
@@ -139,6 +148,7 @@ const DateElementType = new GraphQLObjectType({
 const DateTimeElementType = new GraphQLObjectType({
     name: 'DateTimeElement',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         dateTime_value: {
@@ -171,6 +181,7 @@ const RichTextElementType = new GraphQLObjectType({
     name: 'RichTextElement',
     description: '...',
     fields: () => ({
+        key: { type: GraphQLString },
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         // ToDO: Test if images actually works. In DB there are no data with not empty images
