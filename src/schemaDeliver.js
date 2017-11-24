@@ -17,11 +17,6 @@ const TextElementType = new GraphQLObjectType({
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         text: {
             type: GraphQLString,
             resolve: rootData => rootData.value,
@@ -34,10 +29,6 @@ const ModularContentElementType = new GraphQLObjectType({
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         content: {
             type: new GraphQLList(GraphQLString),
             resolve: rootData => Object.values(rootData.value)
@@ -62,11 +53,6 @@ const AssetElementType = new GraphQLObjectType({
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         assetContent: {
             type: new GraphQLList(AssetType),
             resolve: rootData => Object.values(rootData.value),
@@ -88,11 +74,6 @@ const MultipleChoiceElementType = new GraphQLObjectType({
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         multiple_choice_value: {
             type: new GraphQLList(MultipleChoiceType),
             resolve: rootData => Object.values(rootData.value),
@@ -115,11 +96,6 @@ const TaxonomyElementType = new GraphQLObjectType({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
         taxonomy_group: { type: GraphQLString },
-
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         taxonomy_value: {
             type: new GraphQLList(TaxonomyType),
             resolve: rootData => Object.values(rootData.value),
@@ -132,11 +108,6 @@ const UrlSlugElementType = new GraphQLObjectType({
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         url_slug_value: {
             type: GraphQLString,
             resolve: rootData => rootData.value,
@@ -149,11 +120,6 @@ const NumberElementType = new GraphQLObjectType({
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         number_value: {
             type: GraphQLString,
             resolve: rootData => rootData.value,
@@ -166,11 +132,6 @@ const DateElementType = new GraphQLObjectType({
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         date_value: {
             type: GraphQLString,
             resolve: rootData => rootData.value,
@@ -183,11 +144,6 @@ const DateTimeElementType = new GraphQLObjectType({
     fields: () => ({
         type: { type: GraphQLString },
         name: { type: GraphQLString },
-
-        /*
-        Instead of 'value' an alias have to be used, because for the field 'value'
-        there are conflicting types in the types of ElementType
-         */
         dateTime_value: {
             type: GraphQLString,
             resolve: rootData => rootData.value,
@@ -253,6 +209,9 @@ const RichTextElementType = new GraphQLObjectType({
 
 const ElementType = new GraphQLUnionType({
     name: 'Element',
+    description: 'Instead of \'value\' an alias have to be used, because for the field \'value\'' +
+    'there are conflicting types in the types of ElementType',
+
     types: [
         TextElementType,
         AssetElementType,
@@ -367,6 +326,8 @@ const ContentItemType = new GraphQLObjectType({
         dependencies: { type: new GraphQLList(GraphQLString) },
         search_metadata: { type: SearchMetadataType },
 
+        // Properties with underscore are important for database or communication with it.
+        // There is no use of them for the client.
         _rid: { type: GraphQLString },
         _self: { type: GraphQLString },
         _etag: { type: GraphQLString },
