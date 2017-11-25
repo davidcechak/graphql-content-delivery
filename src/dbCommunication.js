@@ -96,6 +96,7 @@ function getContentType(id) {
     })
 }
 
+
 // Could be set to pre-fetch, before it expires. { maxAge: 1000, preFetch: true } default is preFetch: 0.33
 const getProjectItemsMemoized = memoizee(getProjectItems, { maxAge: 5000 });
 const getContentItemMemoized = memoizee(getItem, { maxAge: 5000 });
@@ -104,5 +105,5 @@ const getContentTypeMemoized = memoizee(getContentType, { maxAge: 5000 });
 export {
     getProjectItemsMemoized,
     getContentItemMemoized,
-    getContentTypeMemoized
+    getContentTypeMemoized,
 };

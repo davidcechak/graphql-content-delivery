@@ -83,7 +83,7 @@ const MultipleChoiceElementType = new GraphQLObjectType({
 });
 
 const TaxonomyType = new GraphQLObjectType({
-    name: 'Taxonomy',
+    name: 'TaxonomySubElement',
     fields: () => ({
         name: { type: GraphQLString },
         codename: { type: GraphQLString },

@@ -11,6 +11,7 @@ import {
     GraphQLList,
     GraphQLID
 } from 'graphql';
+import { Taxonomy } from "./types/taxonomyType/Taxonomy";
 
 const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
@@ -34,6 +35,13 @@ const schema = new GraphQLSchema({
             },
             contentType: {
                 type: ContentType,
+                args: {
+                    id: { type: GraphQLID },
+                },
+                resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
+            },
+            taxonomy: {
+                type: Taxonomy,
                 args: {
                     id: { type: GraphQLID },
                 },
