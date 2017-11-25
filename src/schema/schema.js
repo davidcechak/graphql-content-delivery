@@ -3,7 +3,8 @@ import { ContentType } from "./types/contentType/ContentType";
 import {
     getContentItemMemoized,
     getContentTypeMemoized,
-    getProjectItemsMemoized
+    getProjectItemsMemoized,
+    getProjectContentTypesMemoized,
 } from '../dbCommunication';
 import {
     GraphQLSchema,
@@ -40,13 +41,27 @@ const schema = new GraphQLSchema({
                 },
                 resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
             },
+            projectContentTypes: {
+                type: new GraphQLList(ContentType),
+                args: {
+                    project_id: { type: GraphQLID },
+                },
+                resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
+            },
             taxonomy: {
                 type: Taxonomy,
                 args: {
                     id: { type: GraphQLID },
                 },
                 resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
-            }
+            },
+            projectTaxonomies: {
+                type: new GraphQLList(Taxonomy),
+                args: {
+                    project_id: { type: GraphQLID },
+                },
+                resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
+            },
         })
     })
 });
