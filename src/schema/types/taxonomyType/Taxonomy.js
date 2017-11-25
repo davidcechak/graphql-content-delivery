@@ -1,9 +1,6 @@
 import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLList } from 'graphql';
-import {System} from './system';
-import {ContentItemElement} from './contentItemElement';
-import {SearchMetadata} from './searchMetaData';
 
-const ContentItem = new GraphQLObjectType({
+const Taxonomy = new GraphQLObjectType({
     name: 'ContentItem',
     fields: () => ({
         id: { type: GraphQLID },
@@ -35,4 +32,4 @@ const ContentItem = new GraphQLObjectType({
     })
 });
 
-export { ContentItem }
+export { Taxonomy }

@@ -1,5 +1,5 @@
-import { ContentItem } from './types/contentItem/contentItemType';
-import { ContentType } from "./types/contentType/contentType";
+import { ContentItem } from './types/contentItem/ContentItem';
+import { ContentType } from "./types/contentType/ContentType";
 import {
     getContentItemMemoized,
     getContentTypeMemoized,
