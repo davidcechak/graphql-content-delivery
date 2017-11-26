@@ -19,27 +19,10 @@ import {
 } from 'graphql';
 const UnionInputType = require('graphql-union-input-type');
 
-
-function parseLogicalOperator(value) {
-    const upperCaseValue = value.toString().toUpperCase();
-    if (upperCaseValue === 'AND') return 'AND';
-    if (upperCaseValue === 'OR') return 'OR';
-    return null;
-}
-
-const LogicalOperatorNode = new GraphQLScalarType({
-    name: 'LogicalOperatorNode',
-    serialize: parseLogicalOperator,
-    parseValue: parseLogicalOperator,
-    parseLiteral(ast) {
-        return parseLogicalOperator(ast.value);
-    }
-});
-
-const Leaf = new GraphQLInputObjectType({
-    name: 'Leaf',
+const FieldValueLiteral = new GraphQLInputObjectType({
+    name: 'FieldValueLiteral',
     fields: () => ({
-        field: {
+        fieldName: {
             /*
             ToDo:1 Type check - all the possibilities (e.g. id, project_id, lang, system.type, etc.)
             ToDo:2 Throw GraphQLError if it is incorrect field type
@@ -49,32 +32,6 @@ const Leaf = new GraphQLInputObjectType({
         value: {
             type: GraphQLString
         },
-    })
-});
-
-const ConditionNode = UnionInputType({
-    name: 'ConditionNode',
-    resolveTypeFromAst: (ast) => {
-        if (ast.fields && ast.fields[0] && ast.fields[0].name.value === 'field') {
-            return Leaf;
-        } else {
-            return LogicalOperatorNode;
-        }
-    },
-});
-
-const ConditionInputType = new GraphQLInputObjectType({
-    name: 'Condition',
-    fields: () => ({
-        nodeValue:{
-            type: ConditionNode,
-        },
-        leftChild: {
-            type: ConditionInputType
-        },
-        rightChild: {
-            type: ConditionInputType
-        }
     })
 });
 
@@ -126,11 +83,13 @@ const schema = new GraphQLSchema({
                 },
                 resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
             },
-            conditionTest: {
+
+            // https://en.wikipedia.org/wiki/Disjunctive_normal_form
+            disjunctiveNormalForm: {
                 type: GraphQLBoolean,
                 args: {
-                    conditionalInput: {
-                        type: ConditionInputType
+                    conjunctiveClauses: {
+                        type: new GraphQLList(new GraphQLList(FieldValueLiteral))
                     }
                 },
                 resolve: (root, args) => {
