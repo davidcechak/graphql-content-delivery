@@ -1,5 +1,6 @@
 import { ContentItem } from './types/contentItem/ContentItem';
-import { ContentType } from "./types/contentType/ContentType";
+import { ContentType } from './types/contentType/ContentType';
+import { Taxonomy } from './types/taxonomyType/Taxonomy';
 import {
     getContentItemMemoized,
     getContentTypeMemoized,
@@ -10,9 +11,72 @@ import {
     GraphQLSchema,
     GraphQLObjectType,
     GraphQLList,
-    GraphQLID
+    GraphQLID,
+    GraphQLInputObjectType,
+    GraphQLString,
+    GraphQLScalarType,
+    GraphQLBoolean,
 } from 'graphql';
-import { Taxonomy } from "./types/taxonomyType/Taxonomy";
+const UnionInputType = require('graphql-union-input-type');
+
+
+function parseLogicalOperator(value) {
+    const upperCaseValue = value.toString().toUpperCase();
+    if (upperCaseValue === 'AND') return 'AND';
+    if (upperCaseValue === 'OR') return 'OR';
+    return null;
+}
+
+const LogicalOperatorNode = new GraphQLScalarType({
+    name: 'LogicalOperatorNode',
+    serialize: parseLogicalOperator,
+    parseValue: parseLogicalOperator,
+    parseLiteral(ast) {
+        return parseLogicalOperator(ast.value);
+    }
+});
+
+const Leaf = new GraphQLInputObjectType({
+    name: 'Leaf',
+    fields: () => ({
+        field: {
+            /*
+            ToDo:1 Type check - all the possibilities (e.g. id, project_id, lang, system.type, etc.)
+            ToDo:2 Throw GraphQLError if it is incorrect field type
+             */
+            type: GraphQLString
+        },
+        value: {
+            type: GraphQLString
+        },
+    })
+});
+
+const ConditionNode = UnionInputType({
+    name: 'ConditionNode',
+    resolveTypeFromAst: (ast) => {
+        if (ast.fields && ast.fields[0] && ast.fields[0].name.value === 'field') {
+            return Leaf;
+        } else {
+            return LogicalOperatorNode;
+        }
+    },
+});
+
+const ConditionInputType = new GraphQLInputObjectType({
+    name: 'Condition',
+    fields: () => ({
+        nodeValue:{
+            type: ConditionNode,
+        },
+        leftChild: {
+            type: ConditionInputType
+        },
+        rightChild: {
+            type: ConditionInputType
+        }
+    })
+});
 
 const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
@@ -61,6 +125,21 @@ const schema = new GraphQLSchema({
                     project_id: { type: GraphQLID },
                 },
                 resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
+            },
+            conditionTest: {
+                type: GraphQLBoolean,
+                args: {
+                    conditionalInput: {
+                        type: ConditionInputType
+                    }
+                },
+                resolve: (root, args) => {
+                    /*
+                    ToDo: Type check - traverse throw the whole object and check it's syntax correctness
+                     */
+                    console.log(args);
+                    return true;
+                }
             },
         })
     })
