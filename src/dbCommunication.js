@@ -22,7 +22,7 @@ function getItem(id) {
                     console.log(JSON.stringify(err));
                 }
                 else {
-                    if (results == null) {
+                    if (results === null) {
                         console.log("results == null");
                     }
                     else {
@@ -51,7 +51,7 @@ function getProjectItems(projectId, languageId) {
                     (items.project_id="${projectId}"
                     AND items.language_id="${DEFAULT_ID}")`);
 
-        if (languageId == null) {
+        if (languageId === null) {
             console.log('langID is null')
         }
         else {
@@ -63,7 +63,7 @@ function getProjectItems(projectId, languageId) {
                 console.log(JSON.stringify(err));
             }
             else {
-                if (results == null) {
+                if (results === null) {
                     console.log("results == null");
                 }
                 else {
@@ -86,7 +86,7 @@ function getContentType(id) {
                     console.log(JSON.stringify(err));
                 }
                 else {
-                    if (results == null) {
+                    if (results === null) {
                         console.log("results == null");
                     }
                     else {
@@ -109,7 +109,7 @@ function getProjectContentTypes(projectId) {
                     console.log(JSON.stringify(err));
                 }
                 else {
-                    if (results == null) {
+                    if (results === null) {
                         console.log("results == null");
                     }
                     else {
@@ -121,15 +121,61 @@ function getProjectContentTypes(projectId) {
 }
 
 
+function getItemsConditionaly(conditions) {
+    return new Promise((resolve, reject) => {
+        let query = `SELECT * 
+                FROM Items items 
+                WHERE (`;
+
+        conditions.map(
+            (clause, clauseIndex) => {
+                clause.map((literal, literalIndex) => {
+                    const queryCondition = `items.${literal.fieldName}="${literal.value}"`;
+                    query = query + queryCondition;
+
+                    if (literalIndex < clause.length-1) {
+                        query = query + ` AND `;
+                    }
+                });
+                if (clauseIndex < conditions.length-1) {
+                    query = query + `) OR (`;
+                }
+                else {
+                    query = query + `)`;
+                }
+            }
+        );
+        console.log(query);
+
+
+        client.queryDocuments(contentItemCollectionUrl, query).toArray((err, results) => {
+            if (err) {
+                console.log(JSON.stringify(err));
+            }
+            else {
+                if (results === null) {
+                    console.log("results == null");
+                }
+                else {
+                    resolve(results);
+                }
+            }
+        });
+    })
+}
+
+
 // Could be set to pre-fetch, before it expires. { maxAge: 1000, preFetch: true } default is preFetch: 0.33
 const getProjectItemsMemoized = memoizee(getProjectItems, { maxAge: 5000 });
 const getContentItemMemoized = memoizee(getItem, { maxAge: 5000 });
 const getContentTypeMemoized = memoizee(getContentType, { maxAge: 5000 });
 const getProjectContentTypesMemoized = memoizee(getProjectContentTypes, { maxAge: 5000 });
+const getItemsConditionalyMemoized = memoizee(getItemsConditionaly, { maxAge: 5000 });
 
 export {
     getProjectItemsMemoized,
     getContentItemMemoized,
     getContentTypeMemoized,
     getProjectContentTypesMemoized,
+    getItemsConditionalyMemoized
 };

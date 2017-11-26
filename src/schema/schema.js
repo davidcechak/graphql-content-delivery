@@ -6,6 +6,7 @@ import {
     getContentTypeMemoized,
     getProjectItemsMemoized,
     getProjectContentTypesMemoized,
+    getItemsConditionalyMemoized,
 } from '../dbCommunication';
 import {
     GraphQLSchema,
@@ -17,6 +18,7 @@ import {
     GraphQLScalarType,
     GraphQLBoolean,
 } from 'graphql';
+
 const UnionInputType = require('graphql-union-input-type');
 
 const FieldValueLiteral = new GraphQLInputObjectType({
@@ -30,9 +32,29 @@ const FieldValueLiteral = new GraphQLInputObjectType({
             type: GraphQLString
         },
         value: {
-            type: GraphQLString
+            type: AllowedCharactersString
         },
     })
+});
+
+const AllowedCharactersString = new GraphQLScalarType({
+    name: 'AllowedCharactersString',
+    description: 'represents a string with no special characters',
+    serialize: String,
+    parseValue: (value) => {
+        if(value.match(/^([A-Za-z]|\s|_|-|\.|[0-9])+$/)) {
+            return value
+        }
+        console.log(value)
+        return null
+    },
+    parseLiteral: (ast) => {
+        if(ast.value.match(/^([A-Za-z]|\s|_|-|\.|[0-9])+$/)) {
+            return ast.value
+        }
+        console.log(ast.value)
+        return null
+    }
 });
 
 const schema = new GraphQLSchema({
@@ -86,7 +108,7 @@ const schema = new GraphQLSchema({
 
             // https://en.wikipedia.org/wiki/Disjunctive_normal_form
             disjunctiveNormalForm: {
-                type: GraphQLBoolean,
+                type: new GraphQLList(ContentItem),
                 args: {
                     conjunctiveClauses: {
                         type: new GraphQLList(new GraphQLList(FieldValueLiteral))
@@ -96,8 +118,7 @@ const schema = new GraphQLSchema({
                     /*
                     ToDo: Type check - traverse throw the whole object and check it's syntax correctness
                      */
-                    console.log(args);
-                    return true;
+                    return getItemsConditionalyMemoized(args.conjunctiveClauses).then(response => response);
                 }
             },
         })
