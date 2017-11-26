@@ -145,17 +145,4 @@ const schema = new GraphQLSchema({
     })
 });
 
-
-const preprocessItemForSchema = (item) => {
-    const elementsArray = Object.values(item.elements);
-    console.log(elementsArray);
-    // For the unification of item.elements[x].value type. It could be an array of strings or a string
-    const itemElements = elementsArray.map(x => {
-        console.log(x);
-        x.value = x.value instanceof Array ? x.value : [x.value];
-        console.log(x);
-    });
-    return Object.assign(item, ({ elements: { itemElements } }));
-};
-
 export { schema }
