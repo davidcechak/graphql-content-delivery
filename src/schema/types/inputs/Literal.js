@@ -1,4 +1,5 @@
 import { AllowedCharactersString } from "../scalars/AllowedCharactersString";
+import { GraphQLInputObjectType, GraphQLList } from 'graphql';
 
 const Literal = new GraphQLInputObjectType({
     name: 'Literal',

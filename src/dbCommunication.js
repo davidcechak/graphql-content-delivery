@@ -11,7 +11,7 @@ const contentItemCollectionUrl = `${databaseUrl}/colls/${config.collections.item
 const contentTypeCollectionUrl = `${databaseUrl}/colls/${config.collections.typesId}`;
 
 
-function getItem(id) {
+function getContentItem(id) {
     return new Promise((resolve, reject) => {
         client.queryDocuments(contentItemCollectionUrl,
             `SELECT * 
@@ -34,31 +34,51 @@ function getItem(id) {
 }
 
 
-function getProjectItems(projectId, languageId) {
+function getProjectContentItems(projectId, languageId, orderByLastModified, firstN) {
     return new Promise((resolve, reject) => {
-        const query = languageId ?
-            client.queryDocuments(contentItemCollectionUrl,
-                `SELECT * 
-                FROM Items items 
-                WHERE items.project_id="${projectId}"
-                AND items.language_id="${languageId}"`)
-            : client.queryDocuments(contentItemCollectionUrl,
-                `SELECT * 
-                FROM Items items 
-                WHERE 
-                    items.project_id="${projectId}"
-                OR 
-                    (items.project_id="${projectId}"
-                    AND items.language_id="${DEFAULT_ID}")`);
+        const parameters = [
+            {
+                name: "@firstN",
+                value: firstN
+            },
+            {
+                name: "@projectId",
+                value: projectId
+            },
+            {
+                name: "@languageId",
+                value: languageId
+            }
+        ];
+        let queryString = `SELECT`;
 
-        if (languageId === null) {
-            console.log('langID is null')
-        }
-        else {
-            console.log('langID was given')
+        if (firstN) {
+            queryString = queryString + ` TOP @firstN`;
         }
 
-        query.toArray((err, results) => {
+        if (languageId) {
+            queryString = queryString + ` * FROM Items items 
+                WHERE items.project_id = @projectId"
+                AND items.language_id= @languageId"`;
+        }
+        else{
+            queryString = queryString + `* FROM Items items 
+                WHERE items.project_id = @projectId`;
+        }
+
+        if (orderByLastModified) {
+            queryString = queryString + ` ORDER BY items.system.last_modified ${orderByLastModified}`;
+        }
+
+        console.log(queryString);
+
+
+        const queryJSON = {
+            query: queryString,
+            parameters: parameters
+        };
+
+        client.queryDocuments(contentItemCollectionUrl, queryJSON).toArray((err, results) => {
             if (err) {
                 console.log(JSON.stringify(err));
             }
@@ -122,7 +142,7 @@ function getProjectContentTypes(projectId) {
 
 
 const convertToDatabaseKey = (key) => {
-    switch(key) {
+    switch (key) {
         case 'systemId':
             return 'system.id';
         case 'systemName':
@@ -141,6 +161,7 @@ const convertToDatabaseKey = (key) => {
             return key;
     }
 };
+
 
 /*
     DocumentDB SQL query does not deal with duplication in parameter names
@@ -282,11 +303,11 @@ function getItemsConditionally(conditions) {
 
 
 // Could be set to pre-fetch, before it expires. { maxAge: 1000, preFetch: true } default is preFetch: 0.33
-const getProjectItemsMemoized = memoizee(getProjectItems, { maxAge: 5000 });
-const getContentItemMemoized = memoizee(getItem, { maxAge: 5000 });
+const getProjectItemsMemoized = memoizee(getProjectContentItems, { maxAge: 5000 });
+const getContentItemMemoized = memoizee(getContentItem, { maxAge: 5000 });
 const getContentTypeMemoized = memoizee(getContentType, { maxAge: 5000 });
 const getProjectContentTypesMemoized = memoizee(getProjectContentTypes, { maxAge: 5000 });
-const getItemsConditionalyMemoized = memoizee(getItemsConditionallyParametrized, { maxAge: 15000 });
+const getItemsConditionalyMemoized = memoizee(getItemsConditionallyParametrized, { maxAge: 5000 });
 
 export {
     getProjectItemsMemoized,

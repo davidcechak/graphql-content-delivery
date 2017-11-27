@@ -14,9 +14,42 @@ import {
     GraphQLObjectType,
     GraphQLList,
     GraphQLID,
+    GraphQLScalarType,
+    GraphQLError,
+    GraphQLInt
 } from 'graphql';
 
 const UnionInputType = require('graphql-union-input-type');
+
+
+const OrderOption = new GraphQLScalarType({
+    name: 'OrderOption',
+    description: 'Can be of value: \'DESC\' or \'ASC\'. A choice to order in descending or ascending manner',
+    serialize: String,
+    parseValue: (value) => {
+        if (value.match('DESC')) {
+            return 'DESC'
+        }
+        if (value.match('ASC')) {
+            return 'ASC'
+        }
+        throw new GraphQLError(
+            `Query error: ${OrderOption.name} value can only be of value 'DESC' or 'ASC', got a: ${value}`
+        );
+    },
+    parseLiteral: (ast) => {
+        if (ast.value.match('DESC')) {
+            return 'DESC'
+        }
+        if (ast.value.match('ASC')) {
+            return 'ASC'
+        }
+        throw new GraphQLError(
+            `Query error: ${OrderOption.name} value can only be of value 'DESC' or 'ASC', got a: ${ast.value}`,
+            [ast]
+        );
+    },
+});
 
 const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
@@ -36,8 +69,17 @@ const schema = new GraphQLSchema({
                 args: {
                     project_id: { type: GraphQLID },
                     language_id: { type: GraphQLID },
+                    orderByLastModified: { type: OrderOption },
+                    firstN: {type: GraphQLInt}
                 },
-                resolve: (root, args) => getProjectItemsMemoized(args.project_id, args.language_id).then(response => response),
+                resolve: (root, args) => {
+                    return getProjectItemsMemoized(
+                        args.project_id,
+                        args.language_id,
+                        args.orderByLastModified,
+                        args.firstN
+                    ).then(response => response);
+                }
             },
 
             contentType: {

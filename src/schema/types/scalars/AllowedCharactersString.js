@@ -1,3 +1,5 @@
+import { GraphQLScalarType } from 'graphql';
+
 const AllowedCharactersString = new GraphQLScalarType({
     name: 'AllowedCharactersString',
     description: 'represents a string with no special characters',
