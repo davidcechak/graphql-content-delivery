@@ -21,19 +21,20 @@ import {
 
 const UnionInputType = require('graphql-union-input-type');
 
-const FieldValueLiteral = new GraphQLInputObjectType({
-    name: 'FieldValueLiteral',
+const Literal = new GraphQLInputObjectType({
+    name: 'Literal',
     fields: () => ({
-        fieldName: {
-            /*
-            ToDo:1 Type check - all the possibilities (e.g. id, project_id, lang, system.type, etc.)
-            ToDo:2 Throw GraphQLError if it is incorrect field type
-             */
-            type: GraphQLString
-        },
-        value: {
-            type: AllowedCharactersString
-        },
+        id: { type: AllowedCharactersString },
+        project_id: { type: AllowedCharactersString },
+        language_id: { type: AllowedCharactersString },
+        compatible_languages: { type: new GraphQLList(AllowedCharactersString) },
+        systemId: { type: AllowedCharactersString },
+        systemName: { type: AllowedCharactersString },
+        systemCodename: { type: AllowedCharactersString },
+        systemLanguage: { type: AllowedCharactersString },
+        systemType: { type: AllowedCharactersString },
+        systemSitemap_locations: { type: new GraphQLList(AllowedCharactersString) },
+        systemLast_modified: { type: AllowedCharactersString },
     })
 });
 
@@ -42,14 +43,14 @@ const AllowedCharactersString = new GraphQLScalarType({
     description: 'represents a string with no special characters',
     serialize: String,
     parseValue: (value) => {
-        if(value.match(/^([A-Za-z]|\s|_|-|\.|[0-9])+$/)) {
+        if (value.match(/^([A-Za-z]|\s|_|-|:|\.|[0-9])+$/)) {
             return value
         }
         console.log(value)
         return null
     },
     parseLiteral: (ast) => {
-        if(ast.value.match(/^([A-Za-z]|\s|_|-|\.|[0-9])+$/)) {
+        if (ast.value.match(/^([A-Za-z]|\s|_|-|:|\.|[0-9])+$/)) {
             return ast.value
         }
         console.log(ast.value)
@@ -106,12 +107,11 @@ const schema = new GraphQLSchema({
                 resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
             },
 
-            // https://en.wikipedia.org/wiki/Disjunctive_normal_form
             disjunctiveNormalForm: {
                 type: new GraphQLList(ContentItem),
                 args: {
                     conjunctiveClauses: {
-                        type: new GraphQLList(new GraphQLList(FieldValueLiteral))
+                        type: new GraphQLList(Literal)
                     }
                 },
                 resolve: (root, args) => {

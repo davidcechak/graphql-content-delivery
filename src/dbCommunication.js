@@ -127,17 +127,24 @@ function getItemsConditionaly(conditions) {
                 FROM Items items 
                 WHERE (`;
 
-        conditions.map(
-            (clause, clauseIndex) => {
-                clause.map((literal, literalIndex) => {
-                    const queryCondition = `items.${literal.fieldName}="${literal.value}"`;
+        conditions.map((clause, clauseIndex) => {
+
+                const keys = Object.keys(clause);
+
+                keys.map((key, keyIndex) => {
+                    const databaseKey = convertToDatabaseKey(key);
+                    const queryCondition = (
+                        key === 'compatible_languages' || key === 'systemSitemap_locations'
+                    )
+                        ? `ARRAY_CONTAINS(items.${databaseKey}, "${clause[key]}")`
+                        : `items.${databaseKey}="${clause[key]}"`;
                     query = query + queryCondition;
 
-                    if (literalIndex < clause.length-1) {
+                    if (keyIndex < keys.length - 1) {
                         query = query + ` AND `;
                     }
                 });
-                if (clauseIndex < conditions.length-1) {
+                if (clauseIndex < conditions.length - 1) {
                     query = query + `) OR (`;
                 }
                 else {
@@ -163,6 +170,27 @@ function getItemsConditionaly(conditions) {
         });
     })
 }
+
+const convertToDatabaseKey = (key) => {
+  switch(key) {
+      case 'systemId':
+          return 'system.id';
+      case 'systemName':
+          return 'system.name';
+      case 'systemCodename':
+          return 'system.codename';
+      case 'systemLanguage':
+          return 'system.language';
+      case 'systemType':
+          return 'system.type';
+      case 'systemSitemap_locations':
+          return 'system.sitemap_locations';
+      case 'systemLast_modified':
+          return 'system.last_modified';
+      default:
+          return key;
+  }
+};
 
 
 // Could be set to pre-fetch, before it expires. { maxAge: 1000, preFetch: true } default is preFetch: 0.33
