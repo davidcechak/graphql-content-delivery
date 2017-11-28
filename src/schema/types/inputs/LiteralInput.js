@@ -1,11 +1,11 @@
 import { AllowedCharactersString } from "../scalars/AllowedCharactersString";
-import { GraphQLInputObjectType, GraphQLList } from 'graphql';
+import { GraphQLInputObjectType, GraphQLList, GraphQLNonNull } from 'graphql';
 
-const Literal = new GraphQLInputObjectType({
-    name: 'Literal',
+const LiteralInput = new GraphQLInputObjectType({
+    name: 'LiteralInput',
     fields: () => ({
         id: { type: AllowedCharactersString },
-        project_id: { type: AllowedCharactersString },
+        project_id: { type: new GraphQLNonNull(AllowedCharactersString) },
         language_id: { type: AllowedCharactersString },
         compatible_languages: { type: new GraphQLList(AllowedCharactersString) },
         systemId: { type: AllowedCharactersString },
@@ -18,4 +18,4 @@ const Literal = new GraphQLInputObjectType({
     })
 });
 
-export { Literal }
+export { LiteralInput }

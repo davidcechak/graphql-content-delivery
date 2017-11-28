@@ -87,7 +87,6 @@ const TaxonomyType = new GraphQLObjectType({
     fields: () => ({
         name: { type: GraphQLString },
         codename: { type: GraphQLString },
-
     })
 });
 

@@ -1,7 +1,8 @@
 import { ContentItem } from './types/contentItem/ContentItem';
 import { ContentType } from './types/contentType/ContentType';
 import { Taxonomy } from './types/taxonomy/Taxonomy';
-import { Literal } from "./types/inputs/Literal";
+import { LiteralInput } from "./types/inputs/LiteralInput";
+import { ElementInput } from "./types/inputs/ElementInput";
 import {
     getContentItemMemoized,
     getContentTypeMemoized,
@@ -14,42 +15,14 @@ import {
     GraphQLObjectType,
     GraphQLList,
     GraphQLID,
-    GraphQLScalarType,
-    GraphQLError,
-    GraphQLInt
+    GraphQLInt,
+    GraphQLNonNull
 } from 'graphql';
+import { OrderOption } from "./types/scalars/OrderOption";
 
 const UnionInputType = require('graphql-union-input-type');
 
 
-const OrderOption = new GraphQLScalarType({
-    name: 'OrderOption',
-    description: 'Can be of value: \'DESC\' or \'ASC\'. A choice to order in descending or ascending manner',
-    serialize: String,
-    parseValue: (value) => {
-        if (value.match('DESC')) {
-            return 'DESC'
-        }
-        if (value.match('ASC')) {
-            return 'ASC'
-        }
-        throw new GraphQLError(
-            `Query error: ${OrderOption.name} value can only be of value 'DESC' or 'ASC', got a: ${value}`
-        );
-    },
-    parseLiteral: (ast) => {
-        if (ast.value.match('DESC')) {
-            return 'DESC'
-        }
-        if (ast.value.match('ASC')) {
-            return 'ASC'
-        }
-        throw new GraphQLError(
-            `Query error: ${OrderOption.name} value can only be of value 'DESC' or 'ASC', got a: ${ast.value}`,
-            [ast]
-        );
-    },
-});
 
 const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
@@ -67,17 +40,25 @@ const schema = new GraphQLSchema({
             projectContentItems: {
                 type: new GraphQLList(ContentItem),
                 args: {
-                    project_id: { type: GraphQLID },
+                    item_id: { type: GraphQLID },
+                    project_id: { type: new GraphQLNonNull(GraphQLID) },
                     language_id: { type: GraphQLID },
                     orderByLastModified: { type: OrderOption },
-                    firstN: {type: GraphQLInt}
+                    firstN: { type: GraphQLInt },
+                    element: { type: ElementInput }
                 },
                 resolve: (root, args) => {
+                    if (args.project_id === null) console.log('project_id is null, GraphQLNonNull -> should not be ');
+
+                    // ToDo: check whether ElementInput description is satisfied 
+                    if (args.element)
                     return getProjectItemsMemoized(
+                        args.item_id,
                         args.project_id,
                         args.language_id,
                         args.orderByLastModified,
-                        args.firstN
+                        args.firstN,
+                        args.element
                     ).then(response => response);
                 }
             },
@@ -118,7 +99,7 @@ const schema = new GraphQLSchema({
                 type: new GraphQLList(ContentItem),
                 args: {
                     conjunctiveClauses: {
-                        type: new GraphQLList(Literal)
+                        type: new GraphQLList(LiteralInput)
                     }
                 },
                 resolve: (root, args) => {

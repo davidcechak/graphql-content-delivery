@@ -34,12 +34,16 @@ function getContentItem(id) {
 }
 
 
-function getProjectContentItems(projectId, languageId, orderByLastModified, firstN) {
+function getProjectContentItems(itemId, projectId, languageId, orderByLastModified, firstN) {
     return new Promise((resolve, reject) => {
         const parameters = [
             {
                 name: "@firstN",
                 value: firstN
+            },
+            {
+                name: "@itemId",
+                value: itemId
             },
             {
                 name: "@projectId",
