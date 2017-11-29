@@ -10,19 +10,19 @@ import { NonSpecialCharactersString } from "../scalars/NonSpecialCharactersStrin
  */
 const DESCRIPTION =
     'Query IS ONLY VALID IF one of the arguments "value", "values" or' +
-    '"dateFilter" is given together with "key" argument.\n\n' +
+    '"ordering" is given together with "key" argument.\n\n' +
     'A content item element.\n' +
     '"key" have to be specified together with only one of the options below:\n' +
     'argument "value" is expected if the element found under the key has a single value\n' +
     'argument "values" is expected if the element has an array of values\n' +
-    'argument "dateFilter" is expected if the element type is date_time';
+    'argument "ordering" is expected if the element type is date_time';
 
 
 const DateFilterInput = new GraphQLInputObjectType({
     name: 'DateFilterInput',
     description: DESCRIPTION,
     fields: {
-        orderingMethod: { type: OrderOption },
+        method: { type: OrderOption },
         firstN: { type: GraphQLInt },
     }
 });
@@ -34,7 +34,7 @@ const ElementInput = new GraphQLInputObjectType({
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         value: { type: AllowedCharactersString },
         values: { type: new GraphQLList(AllowedCharactersString) },
-        dateFilter: { type: DateFilterInput }
+        ordering: { type: DateFilterInput }
         // ToDo: rich text and other complex types
     }
 });

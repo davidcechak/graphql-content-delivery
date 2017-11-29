@@ -211,7 +211,6 @@ const ContentItemElement = new GraphQLUnionType({
         ModularContentElementType,
         RichTextElementType,
         DateTimeElementType,
-        DateElementType,
         NumberElementType,
         UrlSlugElementType,
         TaxonomyElementType,

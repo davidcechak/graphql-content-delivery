@@ -34,48 +34,63 @@ function getContentItem(id) {
 }
 
 
-function getProjectContentItems(itemId, projectId, languageId, orderByLastModified, firstN) {
+;
+
+function getProjectContentItems(itemIds, projectId, languageId, orderByLastModified, firstN, element) {
     return new Promise((resolve, reject) => {
         const parameters = [
-            {
-                name: "@firstN",
-                value: firstN
-            },
-            {
-                name: "@itemId",
-                value: itemId
-            },
-            {
-                name: "@projectId",
-                value: projectId
-            },
-            {
-                name: "@languageId",
-                value: languageId
-            }
+            { name: "@projectId", value: projectId },
+            { name: "@languageId", value: languageId }
         ];
-        let queryString = `SELECT`;
 
-        if (firstN) {
-            queryString = queryString + ` TOP @firstN`;
+        let queryString = `SELECT`;
+        const topAmount =
+            (element && element.ordering && element.ordering.firstN)
+                ? element.ordering.firstN
+                : firstN;
+        if (topAmount) {
+            queryString = queryString + ` TOP @topAmount`;
+            parameters.push({ name: "@topAmount", value: topAmount }
+            )
         }
+
+        queryString = queryString + ` * FROM Items i WHERE i.project_id = @projectId`;
 
         if (languageId) {
-            queryString = queryString + ` * FROM Items items 
-                WHERE items.project_id = @projectId"
-                AND items.language_id= @languageId"`;
+            queryString = queryString + ` AND i.language_id = @languageId`;
         }
-        else{
-            queryString = queryString + `* FROM Items items 
-                WHERE items.project_id = @projectId`;
+
+        itemIds.map((id, index) => {
+            queryString = index === 0 ? queryString + ` AND (` : queryString + ` OR `;
+            queryString = queryString + `i.id = @itemIds${index}`;
+            parameters.push({ name: `@itemIds${index}`, value: id });
+            if (index === itemIds.length - 1) {
+                queryString = queryString + `)`;
+            }
+        });
+
+
+        if (element.key) {
+            if (element.value) {
+                queryString = queryString + ` AND i.elements.${element.key}.value = @elementValue`;
+                parameters.push({ name: "@elementValue", value: element.value })
+            }
+            if (element.values) {
+                queryString = queryString
+                    + ` AND ARRAY_CONTAINS(i.${element.key}, @elementValue)`;
+                parameters.push({ name: "@elementValue", value: element.values })
+            }
         }
 
         if (orderByLastModified) {
-            queryString = queryString + ` ORDER BY items.system.last_modified ${orderByLastModified}`;
+            queryString = queryString + ` ORDER BY i.system.last_modified ${orderByLastModified}`;
+        }
+        else if (element.ordering) {
+            queryString = queryString
+                + ` ORDER BY i.elements.${element.key}["value"] ${element.ordering.method}`;
         }
 
         console.log(queryString);
-
 
         const queryJSON = {
             query: queryString,
