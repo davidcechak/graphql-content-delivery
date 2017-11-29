@@ -130,19 +130,6 @@ const NumberElementType = new GraphQLObjectType({
     })
 });
 
-const DateElementType = new GraphQLObjectType({
-    name: 'DateElement',
-    fields: () => ({
-        key: { type: GraphQLString },
-        type: { type: GraphQLString },
-        name: { type: GraphQLString },
-        date_value: {
-            type: GraphQLString,
-            resolve: resolveToSingleValue,
-        },
-    })
-});
-
 const DateTimeElementType = new GraphQLObjectType({
     name: 'DateTimeElement',
     fields: () => ({
