@@ -28,6 +28,7 @@ const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: 'Query',
         fields: () => ({
+            //ToDo: Delete unnecessary things like this one
             contentItem: {
                 type: ContentItem,
                 args: {
@@ -37,7 +38,7 @@ const schema = new GraphQLSchema({
                 resolve: (root, args) => getContentItemMemoized(args.id).then(response => response),
             },
 
-            projectContentItems: {
+            contentItems: {
                 type: new GraphQLList(ContentItem),
                 args: {
                     item_ids: { type: new GraphQLList(GraphQLID) },
@@ -83,6 +84,7 @@ const schema = new GraphQLSchema({
                 }
             },
 
+            //ToDo: Move querying one and more contentTypes into single method
             contentType: {
                 type: ContentType,
                 args: {
@@ -91,7 +93,7 @@ const schema = new GraphQLSchema({
                 resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
             },
 
-            projectContentTypes: {
+            contentTypes: {
                 type: new GraphQLList(ContentType),
                 args: {
                     project_id: { type: GraphQLID },
@@ -99,6 +101,7 @@ const schema = new GraphQLSchema({
                 resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
             },
 
+            //ToDo: Move querying one and more Taxonomies into single method
             taxonomy: {
                 type: Taxonomy,
                 args: {
