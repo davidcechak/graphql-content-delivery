@@ -5,10 +5,10 @@ const OrderOption = new GraphQLScalarType({
     description: 'Can be of value: \'DESC\' or \'ASC\'. A choice to order in descending or ascending manner',
     serialize: String,
     parseValue: (value) => {
-        if (value.match('DESC')) {
+        if (value.toUpperCase() === 'DESC') {
             return 'DESC'
         }
-        if (value.match('ASC')) {
+        if (value.toUpperCase() === 'ASC') {
             return 'ASC'
         }
         throw new GraphQLError(
@@ -16,10 +16,10 @@ const OrderOption = new GraphQLScalarType({
         );
     },
     parseLiteral: (ast) => {
-        if (ast.value.match('DESC')) {
+        if (ast.value.toUpperCase() === 'DESC') {
             return 'DESC'
         }
-        if (ast.value.match('ASC')) {
+        if (ast.value.toUpperCase() === 'ASC') {
             return 'ASC'
         }
         throw new GraphQLError(
