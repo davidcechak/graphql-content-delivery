@@ -1,4 +1,4 @@
-import { GraphQLScalarType } from 'graphql';
+import { GraphQLScalarType, GraphQLError } from 'graphql';
 
 const AllowedCharactersString = new GraphQLScalarType({
     name: 'AllowedCharactersString',
@@ -8,15 +8,20 @@ const AllowedCharactersString = new GraphQLScalarType({
         if (value.match(/^([A-Za-z]|\s|_|-|:|\.|[0-9])+$/)) {
             return value
         }
-        console.log(value)
-        return null
+        throw new GraphQLError(
+            `Query error: ${AllowedCharactersString.name} value can only consist of 
+            letters, numbers, white spaces and characters _ - : . got a: ${value}`
+        );
     },
     parseLiteral: (ast) => {
         if (ast.value.match(/^([A-Za-z]|\s|_|-|:|\.|[0-9])+$/)) {
             return ast.value
         }
-        console.log(ast.value)
-        return null
+        throw new GraphQLError(
+            `Query error: ${AllowedCharactersString.name} value can only consist of 
+            letters, numbers, white spaces and characters _ - : . got a: ${value}`,
+            [ast]
+        );
     }
 });
 
