@@ -34,9 +34,100 @@ function getContentItem(id) {
 }
 
 
-;
+function getProjectContentItems(input) {
+    return new Promise((resolve, reject) => {
+        const parameters = [
+            { name: "@projectId", value: input.project_id },
+        ];
 
-function getProjectContentItems(itemIds, projectId, languageId, orderByLastModified, firstN, element) {
+        let queryString = `SELECT`;
+        queryString = queryString + ` * FROM Items i WHERE i.project_id = @projectId`;
+
+        // ### item IDs ###
+        if (input.items_ids) {
+            input.items_ids.map((id, index) => {
+                queryString = index === 0 ? queryString + ` AND (` : queryString + ` OR `;
+                queryString = queryString + `i.id = @itemIds${index}`;
+                parameters.push({ name: `@itemIds${index}`, value: id });
+                if (index === input.items_ids.length - 1) {
+                    queryString = queryString + `)`;
+                }
+            });
+        }
+
+        // ### system ###
+        if (input.system){
+            const systemKeys = Object.keys(input.system);
+            systemKeys.map((key, index) => {
+                if (key === 'sitemap_locations') {
+                    const sitemapValues = Object.values(input.system[key]);
+
+                    sitemapValues.map((value, sitemapIndex) => {
+                        queryString = queryString + ` AND ARRAY_CONTAINS(i.${key}, @${key}${sitemapIndex})`;
+                        parameters.push({ name: `@${key}${sitemapIndex}`, value: value });
+                    });
+                }
+                else {
+                    queryString = queryString + ` AND i.${key} = @${key}`;
+                    parameters.push({ name: `@${key}`, value: input.system[key] });
+                }
+            });
+        }
+
+
+        // ### elements ###
+        if (input.elements){
+            const queriedElementTypes = Object.keys(input.elements);
+
+            queriedElementTypes.map((type, index) => {
+                const element = input.elements[type];
+
+                // ## single value elements ##
+                if (type === 'text' || type === 'url_slug' || type === 'date' || type === 'number' ) {
+                    queryString = queryString + ` AND i.elements.${element.key}["value"] = @${element.key}${index}`;
+                    parameters.push({ name: `@${element.key}${index}`, value: element.value })
+                }
+
+                // ## modular_content element ##
+                if (type === 'modular_content') {
+                    const values = Object.values(element.value);
+
+                    values.map((value, modularIndex) => {
+                        queryString = queryString
+                            + ` AND ARRAY_CONTAINS(`
+                            + `i.elements.${element.key}["value"], @${element.key}${modularIndex})`;
+                        parameters.push({ name: `@${element.key}${modularIndex}`, value: value });
+                    });
+                }
+            });
+        }
+
+
+        const queryJSON = {
+            query: queryString,
+            parameters: parameters
+        };
+
+        console.log(queryJSON);
+
+        client.queryDocuments(contentItemCollectionUrl, queryJSON).toArray((err, results) => {
+            if (err) {
+                console.log(JSON.stringify(err));
+            }
+            else {
+                if (results === null) {
+                    console.log("results == null");
+                }
+                else {
+                    resolve(results);
+                }
+            }
+        });
+    })
+}
+
+
+function getProjectContentItemsBackup(itemIds, projectId, languageId, orderByLastModified, firstN, elements) {
     return new Promise((resolve, reject) => {
         const parameters = [
             { name: "@projectId", value: projectId },
@@ -45,8 +136,8 @@ function getProjectContentItems(itemIds, projectId, languageId, orderByLastModif
 
         let queryString = `SELECT`;
         const topAmount =
-            (element && element.ordering && element.ordering.firstN)
-                ? element.ordering.firstN
+            (elements && elements.ordering && elements.ordering.firstN)
+                ? elements.ordering.firstN
                 : firstN;
         if (topAmount) {
             queryString = queryString + ` TOP @topAmount`;
@@ -70,24 +161,24 @@ function getProjectContentItems(itemIds, projectId, languageId, orderByLastModif
         });
 
 
-        if (element.key) {
-            if (element.value) {
-                queryString = queryString + ` AND i.elements.${element.key}.value = @elementValue`;
-                parameters.push({ name: "@elementValue", value: element.value })
+        if (elements.key) {
+            if (elements.value) {
+                queryString = queryString + ` AND i.elements.${elements.key}.value = @elementValue`;
+                parameters.push({ name: "@elementValue", value: elements.value })
             }
-            if (element.values) {
+            if (elements.values) {
                 queryString = queryString
-                    + ` AND ARRAY_CONTAINS(i.${element.key}, @elementValue)`;
-                parameters.push({ name: "@elementValue", value: element.values })
+                    + ` AND ARRAY_CONTAINS(i.${elements.key}, @elementValue)`;
+                parameters.push({ name: "@elementValue", value: elements.values })
             }
         }
 
         if (orderByLastModified) {
             queryString = queryString + ` ORDER BY i.system.last_modified ${orderByLastModified}`;
         }
-        else if (element.ordering) {
+        else if (elements.ordering) {
             queryString = queryString
-                + ` ORDER BY i.elements.${element.key}["value"] ${element.ordering.method}`;
+                + ` ORDER BY i.elements.${elements.key}["value"] ${elements.ordering.method}`;
         }
 
         console.log(queryString);

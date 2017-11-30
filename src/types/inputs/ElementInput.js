@@ -1,4 +1,4 @@
-import { GraphQLInputObjectType, GraphQLInt, GraphQLNonNull, GraphQLList } from 'graphql'
+import { GraphQLInputObjectType, GraphQLInt, GraphQLNonNull, GraphQLList, GraphQLString } from 'graphql'
 import { AllowedCharactersString } from "../scalars/AllowedCharactersString";
 import { OrderOption } from "../scalars/OrderOption";
 import { NonSpecialCharactersString } from "../scalars/NonSpecialCharactersString";
@@ -17,9 +17,15 @@ const DESCRIPTION =
     'argument "values" is expected if the element has an array of values\n' +
     'argument "ordering" is expected if the element type is date_time';
 
+const SINGLE_VALUE_TYPES_DESCRIPTION =
+    '"key" \n' +
+    'argument "value" is expected if the element found under the key has a single value\n' +
+    'argument "values" is expected if the element has an array of values\n' +
+    'argument "ordering" is expected if the element type is date_time';
 
-const DateFilterInput = new GraphQLInputObjectType({
-    name: 'DateFilterInput',
+
+const OrderingFilterInput = new GraphQLInputObjectType({
+    name: 'OrderingFilterInput',
     description: DESCRIPTION,
     fields: {
         method: { type: OrderOption },
@@ -27,16 +33,109 @@ const DateFilterInput = new GraphQLInputObjectType({
     }
 });
 
-const ElementInput = new GraphQLInputObjectType({
-    name: 'ElementInput',
-    description: DESCRIPTION,
+const UrlSlugInput = new GraphQLInputObjectType({
+    name: 'UrlSlug',
+    description: SINGLE_VALUE_TYPES_DESCRIPTION,
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
-        value: { type: AllowedCharactersString },
-        values: { type: new GraphQLList(AllowedCharactersString) },
-        ordering: { type: DateFilterInput }
-        // ToDo: rich text and other complex types
+        name: { type: AllowedCharactersString },
+        value: { type: GraphQLString },
+        ordering: { type: OrderingFilterInput }
     }
 });
 
-export { ElementInput }
+
+const TextInput = new GraphQLInputObjectType({
+    name: 'Text',
+    description: SINGLE_VALUE_TYPES_DESCRIPTION,
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        name: { type: AllowedCharactersString },
+        value: { type: AllowedCharactersString },
+        ordering: { type: OrderingFilterInput }
+    }
+});
+
+
+const DateInput = new GraphQLInputObjectType({
+    name: 'Date',
+    description: SINGLE_VALUE_TYPES_DESCRIPTION,
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        name: { type: AllowedCharactersString },
+        value: { type: AllowedCharactersString },
+        ordering: { type: OrderingFilterInput }
+    }
+});
+
+
+const ModularContentInput = new GraphQLInputObjectType({
+    name: 'ModularContentInput',
+    description: DESCRIPTION,
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        name: { type: AllowedCharactersString },
+        value: { type: new GraphQLList(NonSpecialCharactersString) },
+    }
+});
+
+
+
+
+
+
+const NumberElementInput = new GraphQLInputObjectType({
+    name: 'NumberElementInput',
+    description: DESCRIPTION,
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        name: { type: AllowedCharactersString },
+        value: { type: GraphQLInt },
+        ordering: { type: OrderingFilterInput }
+    }
+});
+
+
+const TaxonomyValueInput = new GraphQLInputObjectType({
+    name: 'TaxonomyValueInput',
+    description: DESCRIPTION,
+    fields: {
+        name: { type: AllowedCharactersString },
+        codename: { type: AllowedCharactersString },
+    }
+});
+
+
+const TaxonomyElementInput = new GraphQLInputObjectType({
+    name: 'TaxonomyElementInput',
+    description: DESCRIPTION,
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        name: { type: AllowedCharactersString },
+        value: { type: new GraphQLList(TaxonomyValueInput) },
+        ordering: { type: OrderingFilterInput },
+        taxonomy_group: { type: AllowedCharactersString },
+    }
+});
+
+
+const ElementsInput = new GraphQLInputObjectType({
+    name: 'ElementsInput',
+    description: DESCRIPTION,
+    fields: {
+        // ToDo: GIve the option yo order by value OR name
+        text: { type: TextInput },
+        url_slug: { type: UrlSlugInput },
+        date: { type: DateInput },
+        number: { type: NumberElementInput },
+        modular_content: { type: ModularContentInput },
+
+
+    //Array of objects value elements: multiple_choice, asset, taxonomy
+    //rich_text
+
+        taxonomyElementInput: {type: TaxonomyElementInput},
+    }
+});
+
+export { ElementsInput }

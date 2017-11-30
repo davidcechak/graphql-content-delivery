@@ -2,7 +2,7 @@ import { ContentItem } from '../types/contentItem/ContentItem';
 import { ContentType } from '../types/contentType/ContentType';
 import { Taxonomy } from '../types/taxonomy/Taxonomy';
 import { LiteralInput } from "../types/inputs/LiteralInput";
-import { ElementInput } from "../types/inputs/ElementInput";
+import { ElementsInput } from "../types/inputs/ElementInput";
 import {
     getContentItemMemoized,
     getContentTypeMemoized,
@@ -17,9 +17,12 @@ import {
     GraphQLID,
     GraphQLInt,
     GraphQLNonNull,
-    GraphQLError
+    GraphQLError,
+    GraphQLInputObjectType,
 } from 'graphql';
 import { OrderOption } from "../types/scalars/OrderOption";
+import { AllowedCharactersString } from "../types/scalars/AllowedCharactersString";
+import { NonSpecialCharactersString } from "../types/scalars/NonSpecialCharactersString";
 
 const UnionInputType = require('graphql-union-input-type');
 
@@ -41,46 +44,43 @@ const schema = new GraphQLSchema({
             contentItems: {
                 type: new GraphQLList(ContentItem),
                 args: {
-                    item_ids: { type: new GraphQLList(GraphQLID) },
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
-                    language_id: { type: GraphQLID },
+                    items_ids: { type: new GraphQLList(GraphQLID) },
+
+                    system: { type: new GraphQLInputObjectType({
+                        name: 'SystemInput',
+                        fields: {
+                            codename: { type: NonSpecialCharactersString },
+                            type: { type: NonSpecialCharactersString },
+                            language_id: { type: GraphQLID },
+                            language: { type: NonSpecialCharactersString },
+                            sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
+                        },
+                    })},
+
+                    elements: { type: ElementsInput },
+
                     orderByLastModifiedMethod: { type: OrderOption },
                     firstN: { type: GraphQLInt },
-                    element: { type: ElementInput }
                 },
                 resolve: (root, args) => {
-                    if (args.project_id === null)
-                        console.log('project_id is null, GraphQLNonNull -> should not be ');
 
-                    if ((args.firstN || args.orderByLastModifiedMethod)
-                        && args.element && args.element.ordering && args.element.ordering.firstN) {
-                        throw new GraphQLError(
-                            'Query error: Only one of arguments ordering method can be specified.' +
-                            'And only one of the combinations element.ordering with element.firstN' +
-                            ' or orderByLastModifiedMethod with firstN can be specified.'
-                        );
-                    }
+                    // if ((args.firstN || args.orderByLastModifiedMethod) && args.elements) {
+                    //     args.elements.map(e => {
+                    //         if (e.ordering !== null)
+                    //             throw new GraphQLError(
+                    //                 'Query error: Only one of arguments ordering method can be specified.' +
+                    //                 'And only one of the combinations element.ordering.method with ordering.firstN' +
+                    //                 ' or orderByLastModifiedMethod with firstN can be specified.'
+                    //             );
+                    //     });
+                    // }
 
-                    if (args.element
-                        && (
-                            (args.element.value && args.element.values)
-                            || (args.element.value && args.element.ordering)
-                            || (args.element.ordering && args.element.values)
-                        )
-                    ) {
-                        throw new GraphQLError(
-                            'Query error: The key and only one of the arguments of ElementInput should be specified.'
-                            + ' Read ElementInput description.'
-                        );
-                    }
-                    return getProjectItemsMemoized(
-                        args.item_ids,
-                        args.project_id,
-                        args.language_id,
-                        args.orderByLastModifiedMethod,
-                        args.firstN,
-                        args.element
-                    ).then(response => { console.log(response[0].elements.date.value); return response} );
+                    // ToDo: make getProjectItemsMemoized work with the new approach to elements
+                    // ToDo: add the rest of the elements
+
+                    console.log(args);
+                    return getProjectItemsMemoized(args).then(response => response);
                 }
             },
 
