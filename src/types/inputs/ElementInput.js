@@ -71,7 +71,6 @@ const DateInput = new GraphQLInputObjectType({
 
 const ModularContentInput = new GraphQLInputObjectType({
     name: 'ModularContentInput',
-    description: DESCRIPTION,
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -80,13 +79,8 @@ const ModularContentInput = new GraphQLInputObjectType({
 });
 
 
-
-
-
-
 const NumberElementInput = new GraphQLInputObjectType({
     name: 'NumberElementInput',
-    description: DESCRIPTION,
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -96,9 +90,8 @@ const NumberElementInput = new GraphQLInputObjectType({
 });
 
 
-const TaxonomyValueInput = new GraphQLInputObjectType({
-    name: 'TaxonomyValueInput',
-    description: DESCRIPTION,
+const NameCodenamePair = new GraphQLInputObjectType({
+    name: 'NameCodenamePair',
     fields: {
         name: { type: AllowedCharactersString },
         codename: { type: AllowedCharactersString },
@@ -106,22 +99,54 @@ const TaxonomyValueInput = new GraphQLInputObjectType({
 });
 
 
-const TaxonomyElementInput = new GraphQLInputObjectType({
-    name: 'TaxonomyElementInput',
-    description: DESCRIPTION,
+const TaxonomyInput = new GraphQLInputObjectType({
+    name: 'TaxonomyInput',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
-        value: { type: new GraphQLList(TaxonomyValueInput) },
+        value: { type: new GraphQLList(NameCodenamePair) },
         ordering: { type: OrderingFilterInput },
         taxonomy_group: { type: AllowedCharactersString },
     }
 });
 
 
+const MultipleChoiceInput = new GraphQLInputObjectType({
+    name: 'MultipleChoiceInput',
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        name: { type: AllowedCharactersString },
+        value: { type: new GraphQLList(NameCodenamePair) },
+        ordering: { type: OrderingFilterInput },
+    }
+});
+
+
+const AssetValue = new GraphQLInputObjectType({
+    name: 'AssetValue',
+    fields: {
+        name: { type: AllowedCharactersString },
+        type: { type: AllowedCharactersString },
+        size: { type: GraphQLInt },
+        description: { type: AllowedCharactersString },
+        url: { type: GraphQLString },
+    }
+});
+
+
+const AssetInput = new GraphQLInputObjectType({
+    name: 'AssetInput',
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        name: { type: AllowedCharactersString },
+        value: { type: new GraphQLList(AssetValue) },
+        ordering: { type: OrderingFilterInput },
+    }
+});
+
+
 const ElementsInput = new GraphQLInputObjectType({
     name: 'ElementsInput',
-    description: DESCRIPTION,
     fields: {
         // ToDo: GIve the option yo order by value OR name
         text: { type: TextInput },
@@ -129,12 +154,14 @@ const ElementsInput = new GraphQLInputObjectType({
         date: { type: DateInput },
         number: { type: NumberElementInput },
         modular_content: { type: ModularContentInput },
+        taxonomy: {type: TaxonomyInput},
+        multiple_choice: {type: MultipleChoiceInput},
+        asset: {type: AssetInput},
 
 
-    //Array of objects value elements: multiple_choice, asset, taxonomy
+    //Array of objects value elements: asset
     //rich_text
 
-        taxonomyElementInput: {type: TaxonomyElementInput},
     }
 });
 

@@ -1,5 +1,6 @@
 import * as config from "./config";
 import { DEFAULT_ID } from "./constants";
+import { Taxonomy } from "./types/taxonomy/Taxonomy";
 
 const memoizee = require('memoizee');
 const docdbClient = require("../node_modules/documentdb").DocumentClient;
@@ -56,7 +57,7 @@ function getProjectContentItems(input) {
         }
 
         // ### system ###
-        if (input.system){
+        if (input.system) {
             const systemKeys = Object.keys(input.system);
             systemKeys.map((key, index) => {
                 if (key === 'sitemap_locations') {
@@ -76,14 +77,14 @@ function getProjectContentItems(input) {
 
 
         // ### elements ###
-        if (input.elements){
+        if (input.elements) {
             const queriedElementTypes = Object.keys(input.elements);
 
             queriedElementTypes.map((type, index) => {
                 const element = input.elements[type];
 
                 // ## single value elements ##
-                if (type === 'text' || type === 'url_slug' || type === 'date' || type === 'number' ) {
+                if (type === 'text' || type === 'url_slug' || type === 'date' || type === 'number') {
                     queryString = queryString + ` AND i.elements.${element.key}["value"] = @${element.key}${index}`;
                     parameters.push({ name: `@${element.key}${index}`, value: element.value })
                 }
@@ -99,8 +100,69 @@ function getProjectContentItems(input) {
                         parameters.push({ name: `@${element.key}${modularIndex}`, value: value });
                     });
                 }
+
+                // ## taxonomy and multiple_choice elements ##
+                if (type === 'taxonomy' || type === 'multiple_choice') {
+                    const values = Object.values(element.value);
+
+
+                    values.map((taxObject, taxonomyIndex) => {
+                        const name = `@${element.key}${taxonomyIndex}name`;
+                        const codeName = `@${element.key}${taxonomyIndex}codename`;
+
+                        queryString = queryString + ` AND ARRAY_CONTAINS(i.elements.${element.key}["value"],{ `;
+                        if (taxObject.name) {
+                            queryString = queryString + ` name: ` + name
+                        }
+                        if (taxObject.name && taxObject.codename)
+                            queryString = queryString + ` , `;
+                        if (taxObject.codename) {
+                            queryString = queryString + ` codename: ` + codeName
+                        }
+                        queryString = queryString + `}, true)`;
+                        parameters.push({
+                            name: name,
+                            value: taxObject.name
+                        });
+                        parameters.push({
+                            name: codeName,
+                            value: taxObject.codename
+                        });
+                    });
+                }
+
+
+                // ## asset element ##
+                if (type === 'asset') {
+                    const values = Object.values(element.value);
+
+
+                    values.map((inputObject, assetIndex) => {
+
+                        queryString = queryString + ` AND ARRAY_CONTAINS(i.elements.${element.key}["value"],{ `;
+
+                        const keys = Object.keys(inputObject);
+                        keys.map((key, index) => {
+                            const valueParameter = `@${key}${assetIndex}${index}`;
+                            queryString = queryString + ` ${key}: ` + valueParameter;
+                            if (keys[index+1] !== undefined) {
+                                queryString = queryString + `, `;
+                                console.log(queryString);
+                                console.log(keys[index+1]);
+                            }
+                            parameters.push({
+                                name: valueParameter,
+                                value: inputObject[key]
+                            });
+                        });
+                        queryString = queryString + `}, true)`;
+                    });
+                }
             });
         }
+
+
+        console.log(queryString);
 
 
         const queryJSON = {
@@ -108,7 +170,6 @@ function getProjectContentItems(input) {
             parameters: parameters
         };
 
-        console.log(queryJSON);
 
         client.queryDocuments(contentItemCollectionUrl, queryJSON).toArray((err, results) => {
             if (err) {
