@@ -101,54 +101,19 @@ function getProjectContentItems(input) {
                     });
                 }
 
-                // ## taxonomy and multiple_choice elements ##
-                if (type === 'taxonomy' || type === 'multiple_choice') {
+                // ## taxonomy, multiple_choice and asset elements ##
+                if (type === 'taxonomy' || type === 'multiple_choice' || type === 'asset') {
                     const values = Object.values(element.value);
-
-
-                    values.map((taxObject, taxonomyIndex) => {
-                        const name = `@${element.key}${taxonomyIndex}name`;
-                        const codeName = `@${element.key}${taxonomyIndex}codename`;
-
-                        queryString = queryString + ` AND ARRAY_CONTAINS(i.elements.${element.key}["value"],{ `;
-                        if (taxObject.name) {
-                            queryString = queryString + ` name: ` + name
-                        }
-                        if (taxObject.name && taxObject.codename)
-                            queryString = queryString + ` , `;
-                        if (taxObject.codename) {
-                            queryString = queryString + ` codename: ` + codeName
-                        }
-                        queryString = queryString + `}, true)`;
-                        parameters.push({
-                            name: name,
-                            value: taxObject.name
-                        });
-                        parameters.push({
-                            name: codeName,
-                            value: taxObject.codename
-                        });
-                    });
-                }
-
-
-                // ## asset element ##
-                if (type === 'asset') {
-                    const values = Object.values(element.value);
-
 
                     values.map((inputObject, assetIndex) => {
-
                         queryString = queryString + ` AND ARRAY_CONTAINS(i.elements.${element.key}["value"],{ `;
 
                         const keys = Object.keys(inputObject);
                         keys.map((key, index) => {
-                            const valueParameter = `@${key}${assetIndex}${index}`;
+                            const valueParameter = `@${type}${key}${assetIndex}${index}`;
                             queryString = queryString + ` ${key}: ` + valueParameter;
                             if (keys[index+1] !== undefined) {
-                                queryString = queryString + `, `;
-                                console.log(queryString);
-                                console.log(keys[index+1]);
+                                queryString = queryString + `, `
                             }
                             parameters.push({
                                 name: valueParameter,
