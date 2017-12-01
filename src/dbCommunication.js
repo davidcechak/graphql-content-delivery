@@ -123,6 +123,32 @@ function getProjectContentItems(input) {
                         queryString = queryString + `}, true)`;
                     });
                 }
+
+                // ## rich_text elements ##
+                if (type === 'rich_text') {
+                    // ## rich_text.images ##
+
+                    const imageGallery = element.images;
+                    const imageKeys = Object.keys(imageGallery);
+
+                    imageKeys.map( (imageKey) => {
+                        const image = imageGallery[imageKey];
+
+                        // insideKeys = pixelKey
+                        // name "pixel" symbolizes a fragment of image, in other words "pixel" is a field of "image" object
+                        const pixelKey = Object.keys(image);
+                        pixelKey.map( (insideKey) => {
+                            const pixelValueParameter = `@${element.key}images${imageKey}${insideKey}`;
+                            queryString = queryString
+                                + ` AND i.elements["${element.key}"].images.${imageKey}.${pixelKey}`
+                                + ` = ` + pixelValueParameter;
+                            parameters.push({ name: pixelValueParameter, value: image[pixelKey] })
+                        });
+                    });
+
+
+
+                }
             });
         }
 

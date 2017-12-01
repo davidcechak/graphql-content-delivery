@@ -33,6 +33,7 @@ const OrderingFilterInput = new GraphQLInputObjectType({
     }
 });
 
+
 const UrlSlugInput = new GraphQLInputObjectType({
     name: 'UrlSlug',
     description: SINGLE_VALUE_TYPES_DESCRIPTION,
@@ -145,6 +146,43 @@ const AssetInput = new GraphQLInputObjectType({
 });
 
 
+const RichTextImage = new GraphQLInputObjectType({
+    name: 'RichTextImage',
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        image_id: { type: NonSpecialCharactersString },
+        description: { type: GraphQLString },
+        url: { type: GraphQLString }
+    }
+});
+
+
+const RichTextLink = new GraphQLInputObjectType({
+    name: 'RichTextLink',
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        codename: { type: NonSpecialCharactersString },
+        type: { type: NonSpecialCharactersString },
+        url_slug: { type: GraphQLString }
+    }
+});
+
+
+const RichTextInput = new GraphQLInputObjectType({
+    name: 'RichTextInput',
+    fields: {
+        key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        name: { type: AllowedCharactersString },
+        // ToDo: images and links input actually should be an array of them, it is not possible to take user input in other way
+        images: { type: RichTextImage },
+        links: { type: RichTextLink },
+        modular_content: { type: new GraphQLList(NonSpecialCharactersString) },
+        value: { type: GraphQLString },
+        ordering: { type: OrderingFilterInput },
+    }
+});
+
+
 const ElementsInput = new GraphQLInputObjectType({
     name: 'ElementsInput',
     fields: {
@@ -157,9 +195,9 @@ const ElementsInput = new GraphQLInputObjectType({
         taxonomy: {type: TaxonomyInput},
         multiple_choice: {type: MultipleChoiceInput},
         asset: {type: AssetInput},
+        rich_text: {type: RichTextInput},
 
 
-    //Array of objects value elements: asset
     //rich_text
 
     }
