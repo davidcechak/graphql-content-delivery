@@ -12,12 +12,21 @@ const contentItemCollectionUrl = `${databaseUrl}/colls/${config.collections.item
 const contentTypeCollectionUrl = `${databaseUrl}/colls/${config.collections.typesId}`;
 
 
-function getContentItem(id) {
+function getContentItems(codenames) {
     return new Promise((resolve, reject) => {
-        client.queryDocuments(contentItemCollectionUrl,
-            `SELECT * 
-            FROM Items items 
-            WHERE items.id='${id}'`)
+        let queryString = `SELECT * FROM Items i WHERE `;
+        codenames.map((codename, index) => {
+            if (codenames[index + 1]) {
+                queryString = queryString + `i.system.codename = '${codename}'`;
+            }
+            else {
+                queryString = queryString + `i.system.codename = '${codename} OR'`;
+            }
+        });
+
+        console.log(queryString);
+
+        client.queryDocuments(contentItemCollectionUrl, queryString)
             .toArray((err, results) => {
                 if (err) {
                     console.log(JSON.stringify(err));
@@ -27,10 +36,21 @@ function getContentItem(id) {
                         console.log("results == null");
                     }
                     else {
-                        resolve(results[0]);
+                        resolve(results);
                     }
                 }
             })
+    })
+}
+
+function parseModularContent(object){
+    Object.keys(object).map((key) => {
+
+        if (!!object[key] && typeof(object[key]) === "object") {
+            console.log(key, `  =>  `, object[key])
+            parseModularContent(object[key]);
+        }
+
     })
 }
 
@@ -40,6 +60,8 @@ function getProjectContentItems(input) {
         const parameters = [
             { name: "@projectId", value: input.project_id },
         ];
+        // ### depth of dependent content_modules###
+        const depth = input.depth > 1 ? input.depth : 0;
 
         let queryString = `SELECT`;
         queryString = queryString + ` * FROM Items i WHERE i.project_id = @projectId`;
@@ -112,7 +134,7 @@ function getProjectContentItems(input) {
                         keys.map((key, index) => {
                             const valueParameter = `@${type}${key}${assetIndex}${index}`;
                             queryString = queryString + ` ${key}: ` + valueParameter;
-                            if (keys[index+1] !== undefined) {
+                            if (keys[index + 1] !== undefined) {
                                 queryString = queryString + `, `
                             }
                             parameters.push({
@@ -127,44 +149,24 @@ function getProjectContentItems(input) {
                 // ## rich_text elements ##
                 if (type === 'rich_text') {
 
-                    console.log()
-                    console.log()
-                    console.log('type => ', type)
-                    console.log()
-                    console.log('element => ', element)
-                    console.log()
-                    console.log()
-
-
+                    // ## images and links ##
                     const richTextParts = [];
                     const richTextPartsNames = [];
                     if (element.images) richTextParts.push(element.images) && richTextPartsNames.push('images');
                     if (element.links) richTextParts.push(element.links) && richTextPartsNames.push('links');
-                    console.log('richTextParts => ', richTextParts)
-                    console.log()
-                    console.log()
-                    console.log('richTextPartsNames => ', richTextPartsNames)
-                    console.log()
-                    console.log()
 
-
-                    richTextParts.map( (richTextPart, index) => {
-                        console.log('richTextPart => ', richTextPart)
-
+                    richTextParts.map((richTextPart, index) => {
                         const imageKeys = Object.keys(richTextPart);
-                        console.log('imageKeys', imageKeys)
-
                         imageKeys.map((imageKey) => {
                             const image = richTextPart[imageKey];
 
                             queryString = queryString
                                 + ` AND i.elements["${element.key}"].${richTextPartsNames[index]}["${image["key"]}"]`
-                                + ` != null`+ `\n`;
+                                + ` != null` + `\n`;
 
                             // insideKeys = pixelKey
                             // name "pixel" symbolizes a fragment of image, in other words "pixel" is a field of "image" object
                             const pixelKeys = Object.keys(image);
-                            console.log('pixelKeys', pixelKeys)
 
                             // to get rid of 'key' elements as the database representation is different from arguments
                             pixelKeys.shift();
@@ -179,22 +181,35 @@ function getProjectContentItems(input) {
                         });
                     });
 
+                    if (element.modular_content) {
+                        element.modular_content.map((value, innerIndex) => {
+                            const valueParameter = `@modular_content${innerIndex}`;
+                            queryString = queryString
+                                + ` AND ARRAY_CONTAINS( `
+                                + `i.elements["${element.key}"].modular_content, `
+                                + valueParameter
+                                + `, true )`;
+                            parameters.push({ name: valueParameter, value: value });
+                        });
+                    }
 
+                    if (element.value) {
+                        queryString = queryString + ` AND i.elements.${element.key}["value"] = @${element.key}value`;
+                        parameters.push({ name: `@${element.key}value`, value: element.value })
+                    }
+
+                    if (element.name) {
+                        queryString = queryString + ` AND i.elements.${element.key}["name"] = @${element.key}name`;
+                        parameters.push({ name: `@${element.key}name`, value: element.name })
+                    }
                 }
             });
         }
-
-        console.log();
-        console.log(queryString);
-        console.log();
-        console.log(parameters);
-
 
         const queryJSON = {
             query: queryString,
             parameters: parameters
         };
-
 
         client.queryDocuments(contentItemCollectionUrl, queryJSON).toArray((err, results) => {
             if (err) {
@@ -500,7 +515,7 @@ function getItemsConditionally(conditions) {
 
 // Could be set to pre-fetch, before it expires. { maxAge: 1000, preFetch: true } default is preFetch: 0.33
 const getProjectItemsMemoized = memoizee(getProjectContentItems, { maxAge: 5000 });
-const getContentItemMemoized = memoizee(getContentItem, { maxAge: 5000 });
+const getContentItemMemoized = memoizee(getContentItems, { maxAge: 5000 });
 const getContentTypeMemoized = memoizee(getContentType, { maxAge: 5000 });
 const getProjectContentTypesMemoized = memoizee(getProjectContentTypes, { maxAge: 5000 });
 const getItemsConditionalyMemoized = memoizee(getItemsConditionallyParametrized, { maxAge: 5000 });
@@ -510,5 +525,6 @@ export {
     getContentItemMemoized,
     getContentTypeMemoized,
     getProjectContentTypesMemoized,
-    getItemsConditionalyMemoized
+    getItemsConditionalyMemoized,
+    parseModularContent
 };

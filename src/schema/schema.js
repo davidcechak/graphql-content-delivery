@@ -8,7 +8,7 @@ import {
     getContentTypeMemoized,
     getProjectItemsMemoized,
     getProjectContentTypesMemoized,
-    getItemsConditionalyMemoized,
+    getItemsConditionalyMemoized, parseModularContent,
 } from '../dbCommunication';
 import {
     GraphQLSchema,
@@ -35,10 +35,10 @@ const schema = new GraphQLSchema({
             contentItem: {
                 type: ContentItem,
                 args: {
-                    id: { type: GraphQLID },
+                    codename: { type: GraphQLID },
                 },
                 // root - is parent data (if it is a nested structure)
-                resolve: (root, args) => getContentItemMemoized(args.id).then(response => response),
+                resolve: (root, args) => getContentItemMemoized(args.codename).then(response => response),
             },
 
             contentItems: {
@@ -59,6 +59,16 @@ const schema = new GraphQLSchema({
                     })},
 
                     elements: { type: ElementsInput },
+                    /*
+                        depth = 1 => first level, without any modular_content dependencies
+                        2 => second level, with modular_content dependencies up to first level of depth
+                        3 => with modular_content dependencies of this item's modular_content dependencies
+                     */
+                    depth: { type: GraphQLInt },
+
+
+
+
 
                     orderByLastModifiedMethod: { type: OrderOption },
                     firstN: { type: GraphQLInt },
@@ -79,8 +89,10 @@ const schema = new GraphQLSchema({
                     // ToDo: make getProjectItemsMemoized work with the new approach to elements
                     // ToDo: add the rest of the elements
 
-                    console.log(args);
-                    return getProjectItemsMemoized(args).then(response => response);
+                    return getProjectItemsMemoized(args).then(response => {
+                        parseModularContent(response);
+                        return response
+                    });
                 }
             },
 
