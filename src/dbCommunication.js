@@ -34,7 +34,7 @@ function getContentItem(id) {
     })
 }
 
-
+// ToDo: remove (debugging purpose) console.logs and '\n' at the end of queryString insertions
 function getProjectContentItems(input) {
     return new Promise((resolve, reject) => {
         const parameters = [
@@ -126,34 +126,68 @@ function getProjectContentItems(input) {
 
                 // ## rich_text elements ##
                 if (type === 'rich_text') {
-                    // ## rich_text.images ##
 
-                    const imageGallery = element.images;
-                    const imageKeys = Object.keys(imageGallery);
+                    console.log()
+                    console.log()
+                    console.log('type => ', type)
+                    console.log()
+                    console.log('element => ', element)
+                    console.log()
+                    console.log()
 
-                    imageKeys.map( (imageKey) => {
-                        const image = imageGallery[imageKey];
 
-                        // insideKeys = pixelKey
-                        // name "pixel" symbolizes a fragment of image, in other words "pixel" is a field of "image" object
-                        const pixelKey = Object.keys(image);
-                        pixelKey.map( (insideKey) => {
-                            const pixelValueParameter = `@${element.key}images${imageKey}${insideKey}`;
+                    const richTextParts = [];
+                    const richTextPartsNames = [];
+                    if (element.images) richTextParts.push(element.images) && richTextPartsNames.push('images');
+                    if (element.links) richTextParts.push(element.links) && richTextPartsNames.push('links');
+                    console.log('richTextParts => ', richTextParts)
+                    console.log()
+                    console.log()
+                    console.log('richTextPartsNames => ', richTextPartsNames)
+                    console.log()
+                    console.log()
+
+
+                    richTextParts.map( (richTextPart, index) => {
+                        console.log('richTextPart => ', richTextPart)
+
+                        const imageKeys = Object.keys(richTextPart);
+                        console.log('imageKeys', imageKeys)
+
+                        imageKeys.map((imageKey) => {
+                            const image = richTextPart[imageKey];
+
                             queryString = queryString
-                                + ` AND i.elements["${element.key}"].images.${imageKey}.${pixelKey}`
-                                + ` = ` + pixelValueParameter;
-                            parameters.push({ name: pixelValueParameter, value: image[pixelKey] })
+                                + ` AND i.elements["${element.key}"].${richTextPartsNames[index]}["${image["key"]}"]`
+                                + ` != null`+ `\n`;
+
+                            // insideKeys = pixelKey
+                            // name "pixel" symbolizes a fragment of image, in other words "pixel" is a field of "image" object
+                            const pixelKeys = Object.keys(image);
+                            console.log('pixelKeys', pixelKeys)
+
+                            // to get rid of 'key' elements as the database representation is different from arguments
+                            pixelKeys.shift();
+                            pixelKeys.map((pixelKey) => {
+                                const pixelValueParameter
+                                    = `@${element.key}${richTextPartsNames[index]}${imageKey}${pixelKey}`;
+                                queryString = queryString
+                                    + ` AND i.elements["${element.key}"].${richTextPartsNames[index]}["${image["key"]}"].${pixelKey}`
+                                    + ` = ` + pixelValueParameter + `\n`;
+                                parameters.push({ name: pixelValueParameter, value: image[pixelKey] })
+                            });
                         });
                     });
-
 
 
                 }
             });
         }
 
-
+        console.log();
         console.log(queryString);
+        console.log();
+        console.log(parameters);
 
 
         const queryJSON = {

@@ -149,6 +149,10 @@ const AssetInput = new GraphQLInputObjectType({
 const RichTextImage = new GraphQLInputObjectType({
     name: 'RichTextImage',
     fields: {
+        /*
+            Even though key and image_id are the same for images, their are not for links.
+            The key is included for consistency which leads to easier processing
+        */
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         image_id: { type: NonSpecialCharactersString },
         description: { type: GraphQLString },
@@ -173,9 +177,8 @@ const RichTextInput = new GraphQLInputObjectType({
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
-        // ToDo: images and links input actually should be an array of them, it is not possible to take user input in other way
-        images: { type: RichTextImage },
-        links: { type: RichTextLink },
+        images: { type: new GraphQLList(RichTextImage) },
+        links: { type: new GraphQLList(RichTextLink) },
         modular_content: { type: new GraphQLList(NonSpecialCharactersString) },
         value: { type: GraphQLString },
         ordering: { type: OrderingFilterInput },
