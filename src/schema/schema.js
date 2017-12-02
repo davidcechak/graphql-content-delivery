@@ -94,7 +94,8 @@ const schema = new GraphQLSchema({
 
                     return getProjectItemsMemoized(args).then(response => {
                         parseModularContent(response);
-                        return response
+                        const result = Object.assign(response, { modular_content: {}});
+                        return result
                     });
                 }
             },

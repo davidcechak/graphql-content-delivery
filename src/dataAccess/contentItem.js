@@ -24,7 +24,7 @@ function getContentItems(codenames) {
             }
         });
 
-        console.log(queryString);
+        // console.log(queryString);
 
         client.queryDocuments(contentItemCollectionUrl, queryString)
             .toArray((err, results) => {
@@ -47,7 +47,7 @@ function parseModularContent(object){
     Object.keys(object).map((key) => {
 
         if (!!object[key] && typeof(object[key]) === "object") {
-            console.log(key, `  =>  `, object[key])
+            // console.log(key, `  =>  `, object[key])
             parseModularContent(object[key]);
         }
 

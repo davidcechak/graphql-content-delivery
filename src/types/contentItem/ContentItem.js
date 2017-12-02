@@ -24,6 +24,7 @@ const ContentItem = new GraphQLObjectType({
         },
         dependencies: { type: new GraphQLList(GraphQLString) },
         search_metadata: { type: SearchMetadata },
+        modular_content: { type: new GraphQLList(ContentItem) },
 
         // Properties with underscore are important for database or communication with it.
         // There is no use of them for the client.
