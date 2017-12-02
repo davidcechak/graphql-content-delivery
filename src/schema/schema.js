@@ -92,6 +92,7 @@ const schema = new GraphQLSchema({
                     // ToDo: add the rest of the elements
 
                     return getProjectItemsMemoized(args).then(response => {
+                        if(args.depth === undefined || args.depth < 2) return response;
                         let result = response;
                         const modularContents = new Map();
 

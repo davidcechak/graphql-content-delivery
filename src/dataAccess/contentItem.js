@@ -80,8 +80,6 @@ function getProjectContentItems(input) {
         const parameters = [
             { name: "@projectId", value: input.project_id },
         ];
-        // ### depth of dependent content_modules###
-        const depth = input.depth > 1 ? input.depth : 0;
 
         let queryString = `SELECT`;
         queryString = queryString + ` * FROM Items i WHERE i.project_id = @projectId`;
