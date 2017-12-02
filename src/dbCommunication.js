@@ -12,11 +12,18 @@ const contentItemCollectionUrl = `${databaseUrl}/colls/${config.collections.item
 const contentTypeCollectionUrl = `${databaseUrl}/colls/${config.collections.typesId}`;
 
 
-function getContentItemsByCodenames(projectId, codenames) {
+function getContentItemsByCodenames(projectId, codenamesMap) {
     return new Promise((resolve, reject) => {
         let queryString = `SELECT * FROM Items i WHERE i.project_id = '${projectId}' AND ( `;
-        codenames.map((codename, index) => {
-            if (codenames[index + 1] === undefined) {
+        const codenamesToQuery = new Set();
+
+        codenamesMap.forEach(codenamesArray => {
+            codenamesArray.map((codename) => codenamesToQuery.add(codename));
+        });
+
+        const codenamesToQueryArray = Array.from(codenamesToQuery);
+        codenamesToQueryArray.map((codename, index) => {
+            if (codenamesToQueryArray[index + 1] === undefined) {
                 queryString = queryString + `i.system.codename = '${codename}' )`;
             }
             else {

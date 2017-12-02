@@ -104,22 +104,27 @@ const schema = new GraphQLSchema({
 
                         // ask for modular contents
 
-                        // return getContentItemByCodenamesMemoized(args.project_id, modularContents)
-                        //     .then(modulars => {
-                        //         result.map((item, itemIndex) => {
-                        //             console.log(item.dependencies)
-                        //             let itemModulars = [];
-                        //             modulars.map((modular, modularIndex) => {
-                        //                 if (item.dependencies.includes(modular.system.id)){
-                        //                     console.log(modular.system.id);
-                        //                     itemModulars.push(modular);
-                        //                 }
-                        //             });
-                        //             Object.assign(result[itemIndex], { modular_content: itemModulars })
-                        //         });
-                        //
-                        //         return result
-                        //     });
+                        return getContentItemByCodenamesMemoized(args.project_id, modularContents)
+                            .then(modularsFromDB => {
+
+                                // itemIndex === mapKey of modularContents
+                                result.map((item, mapKey) => {
+                                    let itemModulars = [];
+
+                                    // for each result item do through its modularContentItems and
+                                    modularContents.get(mapKey).map(modularCodename => {
+                                        modularsFromDB.map(modularItemFromDB => {
+                                            if (modularCodename === modularItemFromDB.system.codename){
+                                                itemModulars.push(modularItemFromDB);
+                                            }
+                                        });
+                                    });
+
+                                    Object.assign(item, { modular_content: itemModulars })
+                                });
+
+                                return result
+                            });
 
                     });
                 }
