@@ -26,6 +26,7 @@ import {
 import { OrderOption } from "../types/scalars/OrderOption";
 import { AllowedCharactersString } from "../types/scalars/AllowedCharactersString";
 import { NonSpecialCharactersString } from "../types/scalars/NonSpecialCharactersString";
+import { OrderByInput } from "../types/inputs/OrderByInput";
 
 const UnionInputType = require('graphql-union-input-type');
 
@@ -70,10 +71,8 @@ const schema = new GraphQLSchema({
                         3 => with modular_content dependencies of this item's modular_content dependencies
                      */
                     depth: { type: GraphQLInt },
-
-
-                    orderByLastModifiedMethod: { type: OrderOption },
-                    firstN: { type: GraphQLInt },
+//
+                    orderBy: { type: OrderByInput },
                 },
                 resolve: (root, args) => {
 

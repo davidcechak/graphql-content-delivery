@@ -105,11 +105,10 @@ function getItemsConditionallyParametrized(conditions) {
         const parameters = [];
 
         conditions.map((clause, clauseIndex) => {
-
                 const keys = Object.keys(clause);
 
                 keys.map((key, keyIndex) => {
-                    // The databaseKey contains '.', therefore it cannot be used as a Map key
+                    // The databaseKey contains '.', therefore it cannot be used as a variable
                     const databaseKey = convertToDatabaseKey(key);
 
                     const parameter = {

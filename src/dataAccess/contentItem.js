@@ -74,6 +74,35 @@ function parseModularContent(object, modularContents){
 }
 
 
+const convertToFieldName = (userInput) => {
+    // WHERE c.project_id = "76b0495e-5b12-4e41-bd45-d82d490feff9" ORDER BY c.elements.date["value"] DESC
+    switch (userInput.toLowerCase()) {
+        case 'project_id':
+            return 'i.project_id';
+        case 'language_id':
+            return 'i.language_id';
+        case 'compatible_languages':
+            return 'i.compatible_languages';
+        case 'id':
+            return 'i.system.id';
+        case 'name':
+            return 'i.system.name';
+        case 'codename':
+            return 'i.system.codename';
+        case 'language':
+            return 'i.system.language';
+        case 'type':
+            return 'i.system.type';
+        case 'sitemap_locations':
+            return 'i.system.sitemap_locations';
+        case 'last_modified':
+            return 'i.system.last_modified';
+        default:
+            return 'i.elements.' + userInput + '["value"]';
+    }
+};
+
+
 // ToDo: remove (debugging purpose) console.logs and '\n' at the end of queryString insertions
 function getProjectContentItems(input) {
     return new Promise((resolve, reject) => {
@@ -82,6 +111,11 @@ function getProjectContentItems(input) {
         ];
 
         let queryString = `SELECT`;
+
+        if (input.orderBy && input.orderBy.firstN) {
+            queryString = queryString + ` TOP ${input.orderBy.firstN}`;
+        }
+
         queryString = queryString + ` * FROM Items i WHERE i.project_id = @projectId`;
 
         // ### item IDs ###
@@ -224,10 +258,17 @@ function getProjectContentItems(input) {
             });
         }
 
+        if (input.orderBy && input.orderBy.field) {
+            const field = convertToFieldName(input.orderBy.field);
+            queryString = queryString + ` ORDER BY ${field} ${input.orderBy.direction}`;
+        }
+
         const queryJSON = {
             query: queryString,
             parameters: parameters
         };
+
+        console.log(queryJSON);
 
         client.queryDocuments(contentItemCollectionUrl, queryJSON).toArray((err, results) => {
             if (err) {
