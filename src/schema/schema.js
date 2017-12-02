@@ -88,25 +88,28 @@ const schema = new GraphQLSchema({
                     // ToDo: make getProjectItemsMemoized work with the new approach to elements
                     // ToDo: add the rest of the elements
 
-                    getProjectItemsMemoized(args).then(response => {
-                        const modularContents = [];
+                    return getProjectItemsMemoized(args).then(response => {
                         let result = response;
-                        parseModularContent(response, modularContents);
-                        console.log('result => ', modularContents);
+                        const modularContents = [];
+                        parseModularContent(result, modularContents);
+                        console.log('modularContents => ', modularContents);
 
                         // ask for modular contents
 
-                        getContentItemByCodenamesMemoized(args.project_id, modularContents)
+                        return getContentItemByCodenamesMemoized(args.project_id, modularContents)
                             .then(modulars => {
-                                console.log('------------------------------')
-                                console.log(result[0])
-                                console.log('------------------------------')
-                                console.log()
-                                console.log('------------------------------')
-                                console.log(result)
-                                console.log('------------------------------')
+                                result.map((item, itemIndex) => {
+                                    console.log(item.dependencies)
+                                    let itemModulars = [];
+                                    modulars.map((modular, modularIndex) => {
+                                        if (item.dependencies.includes(modular.system.id)){
+                                            console.log(modular.system.id);
+                                            itemModulars.push(modular);
+                                        }
+                                    });
+                                    Object.assign(result[itemIndex], { modular_content: itemModulars })
+                                });
 
-                                Object.assign(result[0], { modular_content: modulars })
                                 return result
                             });
 
