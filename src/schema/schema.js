@@ -114,7 +114,7 @@ const schema = new GraphQLSchema({
                                 result.map((item, mapKey) => {
                                     let itemModulars = [];
 
-                                    // for each result item do through its modularContentItems and
+                                    // for each result item go through its modularContentItems and
                                     modularContents.get(mapKey).map(modularCodename => {
                                         modularsFromDB.map(modularItemFromDB => {
                                             if (modularCodename === modularItemFromDB.system.codename){

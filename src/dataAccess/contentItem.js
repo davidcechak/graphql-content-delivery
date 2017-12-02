@@ -12,19 +12,27 @@ const contentItemCollectionUrl = `${databaseUrl}/colls/${config.collections.item
 const contentTypeCollectionUrl = `${databaseUrl}/colls/${config.collections.typesId}`;
 
 
-function getContentItems(codenames) {
+
+function getContentItemsByCodenames(projectId, codenamesMap) {
     return new Promise((resolve, reject) => {
-        let queryString = `SELECT * FROM Items i WHERE `;
-        codenames.map((codename, index) => {
-            if (codenames[index + 1]) {
-                queryString = queryString + `i.system.codename = '${codename}'`;
+        let queryString = `SELECT * FROM Items i WHERE i.project_id = '${projectId}' AND ( `;
+        const codenamesToQuery = new Set();
+
+        codenamesMap.forEach(codenamesArray => {
+            codenamesArray.map((codename) => codenamesToQuery.add(codename));
+        });
+
+        const codenamesToQueryArray = Array.from(codenamesToQuery);
+        codenamesToQueryArray.map((codename, index) => {
+            if (codenamesToQueryArray[index + 1] === undefined) {
+                queryString = queryString + `i.system.codename = '${codename}' )`;
             }
             else {
-                queryString = queryString + `i.system.codename = '${codename} OR'`;
+                queryString = queryString + `i.system.codename = '${codename}' OR `;
             }
         });
 
-        // console.log(queryString);
+        console.log(queryString);
 
         client.queryDocuments(contentItemCollectionUrl, queryString)
             .toArray((err, results) => {
@@ -43,16 +51,28 @@ function getContentItems(codenames) {
     })
 }
 
-function parseModularContent(object){
-    Object.keys(object).map((key) => {
+
+function parseModularContent(object, modularContents){
+    const keys = Object.keys(object);
+
+    if (object['type'] === 'modular_content' && object['value']){
+        modularContents.push(...object['value']);
+        console.log(object['value']);
+        console.log('modularContents:  ', modularContents);
+    }
+    keys.map((key) => {
 
         if (!!object[key] && typeof(object[key]) === "object") {
-            // console.log(key, `  =>  `, object[key])
-            parseModularContent(object[key]);
+            if (key === 'modular_content' && object[key]) {
+                modularContents.push(...object[key]);
+                console.log(object[key]);
+                console.log('modularContents:  ', modularContents);
+            }
+            parseModularContent(object[key], modularContents);
         }
-
     })
 }
+
 
 // ToDo: remove (debugging purpose) console.logs and '\n' at the end of queryString insertions
 function getProjectContentItems(input) {
@@ -230,10 +250,10 @@ function getProjectContentItems(input) {
 
 // Could be set to pre-fetch, before it expires. { maxAge: 1000, preFetch: true } default is preFetch: 0.33
 const getProjectItemsMemoized = memoizee(getProjectContentItems, { maxAge: 5000 });
-const getContentItemMemoized = memoizee(getContentItems, { maxAge: 5000 });
+const getContentItemByCodenamesMemoized = memoizee(getContentItemsByCodenames, { maxAge: 5000 });
 
 export {
     getProjectItemsMemoized,
-    getContentItemMemoized,
+    getContentItemByCodenamesMemoized,
     parseModularContent
 };
