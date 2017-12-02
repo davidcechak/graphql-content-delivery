@@ -12,15 +12,15 @@ const contentItemCollectionUrl = `${databaseUrl}/colls/${config.collections.item
 const contentTypeCollectionUrl = `${databaseUrl}/colls/${config.collections.typesId}`;
 
 
-function getContentItems(codenames) {
+function getContentItemsByCodenames(projectId, codenames) {
     return new Promise((resolve, reject) => {
-        let queryString = `SELECT * FROM Items i WHERE `;
+        let queryString = `SELECT * FROM Items i WHERE i.project_id = '${projectId} AND ( ' `;
         codenames.map((codename, index) => {
-            if (codenames[index + 1]) {
-                queryString = queryString + `i.system.codename = '${codename}'`;
+            if (codenames[index + 1] === undefined) {
+                queryString = queryString + `i.system.codename = '${codename}' )`;
             }
             else {
-                queryString = queryString + `i.system.codename = '${codename} OR'`;
+                queryString = queryString + `i.system.codename = '${codename}' OR `;
             }
         });
 
@@ -43,14 +43,24 @@ function getContentItems(codenames) {
     })
 }
 
-function parseModularContent(object){
-    Object.keys(object).map((key) => {
+function parseModularContent(object, modularContents){
+    const keys = Object.keys(object);
+
+    if (object['type'] === 'modular_content' && object['value']){
+        modularContents.push(...object['value']);
+        console.log(object['value']);
+        console.log('modularContents:  ', modularContents);
+    }
+    keys.map((key) => {
 
         if (!!object[key] && typeof(object[key]) === "object") {
-            console.log(key, `  =>  `, object[key])
-            parseModularContent(object[key]);
+            if (key === 'modular_content' && object[key]) {
+                modularContents.push(...object[key]);
+                console.log(object[key]);
+                console.log('modularContents:  ', modularContents);
+            }
+            parseModularContent(object[key], modularContents);
         }
-
     })
 }
 
@@ -515,14 +525,14 @@ function getItemsConditionally(conditions) {
 
 // Could be set to pre-fetch, before it expires. { maxAge: 1000, preFetch: true } default is preFetch: 0.33
 const getProjectItemsMemoized = memoizee(getProjectContentItems, { maxAge: 5000 });
-const getContentItemMemoized = memoizee(getContentItems, { maxAge: 5000 });
+const getContentItemByCodenamesMemoized = memoizee(getContentItemsByCodenames, { maxAge: 5000 });
 const getContentTypeMemoized = memoizee(getContentType, { maxAge: 5000 });
 const getProjectContentTypesMemoized = memoizee(getProjectContentTypes, { maxAge: 5000 });
 const getItemsConditionalyMemoized = memoizee(getItemsConditionallyParametrized, { maxAge: 5000 });
 
 export {
     getProjectItemsMemoized,
-    getContentItemMemoized,
+    getContentItemByCodenamesMemoized,
     getContentTypeMemoized,
     getProjectContentTypesMemoized,
     getItemsConditionalyMemoized,

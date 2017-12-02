@@ -4,7 +4,7 @@ import { Taxonomy } from '../types/taxonomy/Taxonomy';
 import { LiteralInput } from "../types/inputs/LiteralInput";
 import { ElementsInput } from "../types/inputs/ElementInput";
 import {
-    getContentItemMemoized,
+    getContentItemByCodenamesMemoized,
     getContentTypeMemoized,
     getProjectItemsMemoized,
     getProjectContentTypesMemoized,
@@ -38,7 +38,7 @@ const schema = new GraphQLSchema({
                     codename: { type: GraphQLID },
                 },
                 // root - is parent data (if it is a nested structure)
-                resolve: (root, args) => getContentItemMemoized(args.codename).then(response => response),
+                resolve: (root, args) => getContentItemByCodenamesMemoized(args.codename).then(response => response),
             },
 
             contentItems: {
@@ -47,16 +47,18 @@ const schema = new GraphQLSchema({
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
                     items_ids: { type: new GraphQLList(GraphQLID) },
 
-                    system: { type: new GraphQLInputObjectType({
-                        name: 'SystemInput',
-                        fields: {
-                            codename: { type: NonSpecialCharactersString },
-                            type: { type: NonSpecialCharactersString },
-                            language_id: { type: GraphQLID },
-                            language: { type: NonSpecialCharactersString },
-                            sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
-                        },
-                    })},
+                    system: {
+                        type: new GraphQLInputObjectType({
+                            name: 'SystemInput',
+                            fields: {
+                                codename: { type: NonSpecialCharactersString },
+                                type: { type: NonSpecialCharactersString },
+                                language_id: { type: GraphQLID },
+                                language: { type: NonSpecialCharactersString },
+                                sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
+                            },
+                        })
+                    },
 
                     elements: { type: ElementsInput },
                     /*
@@ -65,9 +67,6 @@ const schema = new GraphQLSchema({
                         3 => with modular_content dependencies of this item's modular_content dependencies
                      */
                     depth: { type: GraphQLInt },
-
-
-
 
 
                     orderByLastModifiedMethod: { type: OrderOption },
@@ -89,9 +88,28 @@ const schema = new GraphQLSchema({
                     // ToDo: make getProjectItemsMemoized work with the new approach to elements
                     // ToDo: add the rest of the elements
 
-                    return getProjectItemsMemoized(args).then(response => {
-                        parseModularContent(response);
-                        return response
+                    getProjectItemsMemoized(args).then(response => {
+                        const modularContents = [];
+                        let result = response;
+                        parseModularContent(response, modularContents);
+                        console.log('result => ', modularContents);
+
+                        // ask for modular contents
+
+                        getContentItemByCodenamesMemoized(args.project_id, modularContents)
+                            .then(modulars => {
+                                console.log('------------------------------')
+                                console.log(result[0])
+                                console.log('------------------------------')
+                                console.log()
+                                console.log('------------------------------')
+                                console.log(result)
+                                console.log('------------------------------')
+
+                                Object.assign(result[0], { modular_content: modulars })
+                                return result
+                            });
+
                     });
                 }
             },
