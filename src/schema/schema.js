@@ -5,11 +5,14 @@ import { LiteralInput } from "../types/inputs/LiteralInput";
 import { ElementsInput } from "../types/inputs/ElementInput";
 import {
     getContentItemMemoized,
-    getContentTypeMemoized,
     getProjectItemsMemoized,
+    parseModularContent,
+} from '../dataAccess/contentItem';
+import {
+    getContentTypeMemoized,
     getProjectContentTypesMemoized,
-    getItemsConditionalyMemoized, parseModularContent,
-} from '../dbCommunication';
+    getItemsConditionalyMemoized,
+} from '../dataAccess/contentType';
 import {
     GraphQLSchema,
     GraphQLObjectType,
