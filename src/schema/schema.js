@@ -90,28 +90,36 @@ const schema = new GraphQLSchema({
 
                     return getProjectItemsMemoized(args).then(response => {
                         let result = response;
-                        const modularContents = [];
-                        parseModularContent(result, modularContents);
+                        const modularContents = new Map();
+
+
+                        if (Array.isArray(result)) {
+                            result.map((item, itemIndex) => {
+                                const modularContentOfItem = [];
+                                parseModularContent(item, modularContentOfItem);
+                                modularContents.set(itemIndex, modularContentOfItem);
+                            });
+                        }
                         console.log('modularContents => ', modularContents);
 
                         // ask for modular contents
 
-                        return getContentItemByCodenamesMemoized(args.project_id, modularContents)
-                            .then(modulars => {
-                                result.map((item, itemIndex) => {
-                                    console.log(item.dependencies)
-                                    let itemModulars = [];
-                                    modulars.map((modular, modularIndex) => {
-                                        if (item.dependencies.includes(modular.system.id)){
-                                            console.log(modular.system.id);
-                                            itemModulars.push(modular);
-                                        }
-                                    });
-                                    Object.assign(result[itemIndex], { modular_content: itemModulars })
-                                });
-
-                                return result
-                            });
+                        // return getContentItemByCodenamesMemoized(args.project_id, modularContents)
+                        //     .then(modulars => {
+                        //         result.map((item, itemIndex) => {
+                        //             console.log(item.dependencies)
+                        //             let itemModulars = [];
+                        //             modulars.map((modular, modularIndex) => {
+                        //                 if (item.dependencies.includes(modular.system.id)){
+                        //                     console.log(modular.system.id);
+                        //                     itemModulars.push(modular);
+                        //                 }
+                        //             });
+                        //             Object.assign(result[itemIndex], { modular_content: itemModulars })
+                        //         });
+                        //
+                        //         return result
+                        //     });
 
                     });
                 }
