@@ -4,7 +4,7 @@ import { Taxonomy } from '../types/taxonomy/Taxonomy';
 import { LiteralInput } from "../types/inputs/LiteralInput";
 import { ElementsInput } from "../types/inputs/ElementInput";
 import {
-    getContentItemMemoized,
+    getContentItemByCodenamesMemoized,
     getProjectItemsMemoized,
     parseModularContent,
 } from '../dataAccess/contentItem';
@@ -41,7 +41,7 @@ const schema = new GraphQLSchema({
                     codename: { type: GraphQLID },
                 },
                 // root - is parent data (if it is a nested structure)
-                resolve: (root, args) => getContentItemMemoized(args.codename).then(response => response),
+                resolve: (root, args) => getContentItemByCodenamesMemoized(args.codename).then(response => response),
             },
 
             contentItems: {
@@ -50,16 +50,18 @@ const schema = new GraphQLSchema({
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
                     items_ids: { type: new GraphQLList(GraphQLID) },
 
-                    system: { type: new GraphQLInputObjectType({
-                        name: 'SystemInput',
-                        fields: {
-                            codename: { type: NonSpecialCharactersString },
-                            type: { type: NonSpecialCharactersString },
-                            language_id: { type: GraphQLID },
-                            language: { type: NonSpecialCharactersString },
-                            sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
-                        },
-                    })},
+                    system: {
+                        type: new GraphQLInputObjectType({
+                            name: 'SystemInput',
+                            fields: {
+                                codename: { type: NonSpecialCharactersString },
+                                type: { type: NonSpecialCharactersString },
+                                language_id: { type: GraphQLID },
+                                language: { type: NonSpecialCharactersString },
+                                sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
+                            },
+                        })
+                    },
 
                     elements: { type: ElementsInput },
                     /*
@@ -68,9 +70,6 @@ const schema = new GraphQLSchema({
                         3 => with modular_content dependencies of this item's modular_content dependencies
                      */
                     depth: { type: GraphQLInt },
-
-
-
 
 
                     orderByLastModifiedMethod: { type: OrderOption },
@@ -93,9 +92,43 @@ const schema = new GraphQLSchema({
                     // ToDo: add the rest of the elements
 
                     return getProjectItemsMemoized(args).then(response => {
-                        parseModularContent(response);
-                        const result = Object.assign(response, { modular_content: {}});
-                        return result
+                        let result = response;
+                        const modularContents = new Map();
+
+
+                        if (Array.isArray(result)) {
+                            result.map((item, itemIndex) => {
+                                const modularContentOfItem = [];
+                                parseModularContent(item, modularContentOfItem);
+                                modularContents.set(itemIndex, modularContentOfItem);
+                            });
+                        }
+                        console.log('modularContents => ', modularContents);
+
+                        // ask for modular contents
+
+                        return getContentItemByCodenamesMemoized(args.project_id, modularContents)
+                            .then(modularsFromDB => {
+
+                                // itemIndex === mapKey of modularContents
+                                result.map((item, mapKey) => {
+                                    let itemModulars = [];
+
+                                    // for each result item do through its modularContentItems and
+                                    modularContents.get(mapKey).map(modularCodename => {
+                                        modularsFromDB.map(modularItemFromDB => {
+                                            if (modularCodename === modularItemFromDB.system.codename){
+                                                itemModulars.push(modularItemFromDB);
+                                            }
+                                        });
+                                    });
+
+                                    Object.assign(item, { modular_content: itemModulars })
+                                });
+
+                                return result
+                            });
+
                     });
                 }
             },

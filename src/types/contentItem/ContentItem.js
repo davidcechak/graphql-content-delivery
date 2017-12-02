@@ -1,7 +1,7 @@
 import { GraphQLObjectType, GraphQLID, GraphQLString, GraphQLInt, GraphQLList } from 'graphql';
-import {System} from './System';
-import {ContentItemElement} from './ContentItemElement';
-import {SearchMetadata} from './SearchMetaData';
+import { System } from './System';
+import { ContentItemElement } from './ContentItemElement';
+import { SearchMetadata } from './SearchMetaData';
 
 const ContentItem = new GraphQLObjectType({
     name: 'ContentItem',
@@ -16,7 +16,8 @@ const ContentItem = new GraphQLObjectType({
             type: new GraphQLList(ContentItemElement),
             resolve: rootData => {
                 const keys = Object.keys(rootData.elements);
-                return keys.map(key => (Object.assign({ key: key }, rootData.elements[key])))},
+                return keys.map(key => (Object.assign({ key: key }, rootData.elements[key])))
+            },
         },
         system: {
             type: System,
