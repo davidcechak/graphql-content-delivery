@@ -2,7 +2,7 @@ import { ContentItem } from '../types/contentItem/ContentItem';
 import { ContentType } from '../types/contentType/ContentType';
 import { Taxonomy } from '../types/taxonomy/Taxonomy';
 import { LiteralInput } from "../types/inputs/LiteralInput";
-import { ElementsInput } from "../types/inputs/ElementInput";
+import { ContentItemElementsInput } from "../types/inputs/ContentItemElementInput";
 import {
     getContentItemByCodenamesMemoized,
     getProjectItemsMemoized,
@@ -26,6 +26,7 @@ import {
 import { OrderByInput } from "../types/inputs/OrderByInput";
 import { ComparisonFilterInput } from "../types/inputs/ComparisonFilterInput";
 import { SystemInput } from "../types/inputs/SystemInput";
+import { ContentTypeElementsInput } from "../types/inputs/ContentTypeElementInput";
 
 
 const schema = new GraphQLSchema({
@@ -40,7 +41,7 @@ const schema = new GraphQLSchema({
 
                     system: { type: SystemInput },
 
-                    elements: { type: ElementsInput },
+                    elements: { type: ContentItemElementsInput },
                     /*
                         depth = 1 => first level, without any modular_content dependencies
                         2 => second level, with modular_content dependencies up to first level of depth
@@ -97,18 +98,16 @@ const schema = new GraphQLSchema({
             },
 
             //ToDo: Move querying one and more contentTypes into single method
-            contentType: {
-                type: ContentType,
-                args: {
-                    id: { type: GraphQLID },
-                },
-                resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
-            },
 
             contentTypes: {
                 type: new GraphQLList(ContentType),
                 args: {
-                    project_id: { type: GraphQLID },
+                    project_id: { type: new GraphQLNonNull(GraphQLID) },
+                    items_ids: { type: new GraphQLList(GraphQLID) },
+
+                    elements: { type: ContentTypeElementsInput },
+
+                    system: { type: SystemInput },
                 },
                 resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
             },

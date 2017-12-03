@@ -186,8 +186,8 @@ const RichTextInput = new GraphQLInputObjectType({
 });
 
 
-const ElementsInput = new GraphQLInputObjectType({
-    name: 'ElementsInput',
+const ContentItemElementsInput = new GraphQLInputObjectType({
+    name: 'ContentItemElementsInput',
     fields: {
         // ToDo: GIve the option yo order by value OR name
         text: { type: TextInput },
@@ -199,11 +199,7 @@ const ElementsInput = new GraphQLInputObjectType({
         multiple_choice: {type: MultipleChoiceInput},
         asset: {type: AssetInput},
         rich_text: {type: RichTextInput},
-
-
-    //rich_text
-
     }
 });
 
-export { ElementsInput }
+export { ContentItemElementsInput }
