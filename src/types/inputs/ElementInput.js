@@ -41,7 +41,6 @@ const UrlSlugInput = new GraphQLInputObjectType({
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
         value: { type: GraphQLString },
-        ordering: { type: OrderingFilterInput }
     }
 });
 
@@ -53,7 +52,6 @@ const TextInput = new GraphQLInputObjectType({
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
         value: { type: AllowedCharactersString },
-        ordering: { type: OrderingFilterInput }
     }
 });
 
@@ -65,7 +63,6 @@ const DateInput = new GraphQLInputObjectType({
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
         value: { type: AllowedCharactersString },
-        ordering: { type: OrderingFilterInput }
     }
 });
 
@@ -86,7 +83,6 @@ const NumberElementInput = new GraphQLInputObjectType({
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
         value: { type: GraphQLInt },
-        ordering: { type: OrderingFilterInput }
     }
 });
 
@@ -106,7 +102,6 @@ const TaxonomyInput = new GraphQLInputObjectType({
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
         value: { type: new GraphQLList(NameCodenamePair) },
-        ordering: { type: OrderingFilterInput },
         taxonomy_group: { type: AllowedCharactersString },
     }
 });
@@ -118,7 +113,6 @@ const MultipleChoiceInput = new GraphQLInputObjectType({
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
         value: { type: new GraphQLList(NameCodenamePair) },
-        ordering: { type: OrderingFilterInput },
     }
 });
 
@@ -141,7 +135,6 @@ const AssetInput = new GraphQLInputObjectType({
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
         value: { type: new GraphQLList(AssetValue) },
-        ordering: { type: OrderingFilterInput },
     }
 });
 
@@ -181,7 +174,6 @@ const RichTextInput = new GraphQLInputObjectType({
         links: { type: new GraphQLList(RichTextLink) },
         modular_content: { type: new GraphQLList(NonSpecialCharactersString) },
         value: { type: GraphQLString },
-        ordering: { type: OrderingFilterInput },
     }
 });
 
@@ -199,10 +191,6 @@ const ElementsInput = new GraphQLInputObjectType({
         multiple_choice: {type: MultipleChoiceInput},
         asset: {type: AssetInput},
         rich_text: {type: RichTextInput},
-
-
-    //rich_text
-
     }
 });
 
