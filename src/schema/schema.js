@@ -27,6 +27,8 @@ import { OrderOption } from "../types/scalars/OrderOption";
 import { AllowedCharactersString } from "../types/scalars/AllowedCharactersString";
 import { NonSpecialCharactersString } from "../types/scalars/NonSpecialCharactersString";
 import { OrderByInput } from "../types/inputs/OrderByInput";
+import { ComparisonFilterInput } from "../types/inputs/ComparisonFilterInput";
+import { SystemInput } from "../types/inputs/SystemInput";
 
 const UnionInputType = require('graphql-union-input-type');
 
@@ -51,18 +53,7 @@ const schema = new GraphQLSchema({
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
                     items_ids: { type: new GraphQLList(GraphQLID) },
 
-                    system: {
-                        type: new GraphQLInputObjectType({
-                            name: 'SystemInput',
-                            fields: {
-                                codename: { type: NonSpecialCharactersString },
-                                type: { type: NonSpecialCharactersString },
-                                language_id: { type: GraphQLID },
-                                language: { type: NonSpecialCharactersString },
-                                sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
-                            },
-                        })
-                    },
+                    system: { type: SystemInput },
 
                     elements: { type: ElementsInput },
                     /*
@@ -73,6 +64,7 @@ const schema = new GraphQLSchema({
                     depth: { type: GraphQLInt },
 //
                     orderBy: { type: OrderByInput },
+                    comparisonFilter: { type: ComparisonFilterInput },
                 },
                 resolve: (root, args) => {
 
@@ -91,7 +83,7 @@ const schema = new GraphQLSchema({
                     // ToDo: add the rest of the elements
 
                     return getProjectItemsMemoized(args).then(response => {
-                        if(args.depth === undefined || args.depth < 2) return response;
+                        if (args.depth === undefined || args.depth < 2) return response;
                         let result = response;
                         const modularContents = new Map();
 
@@ -117,7 +109,7 @@ const schema = new GraphQLSchema({
                                     // for each result item go through its modularContentItems and
                                     modularContents.get(mapKey).map(modularCodename => {
                                         modularsFromDB.map(modularItemFromDB => {
-                                            if (modularCodename === modularItemFromDB.system.codename){
+                                            if (modularCodename === modularItemFromDB.system.codename) {
                                                 itemModulars.push(modularItemFromDB);
                                             }
                                         });
