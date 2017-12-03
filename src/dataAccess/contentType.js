@@ -1,15 +1,7 @@
-import * as config from "../config";
-import { DEFAULT_ID } from "../constants";
-import { Taxonomy } from "../types/taxonomy/Taxonomy";
+import { contentTypeCollectionUrl } from "./client";
 
 const memoizee = require('memoizee');
-const docdbClient = require("../../node_modules/documentdb/index").DocumentClient;
 
-
-const client = new docdbClient(config.uri, { masterKey: config.primaryKey });
-const databaseUrl = `dbs/${config.database.id}`;
-const contentItemCollectionUrl = `${databaseUrl}/colls/${config.collections.itemsId}`;
-const contentTypeCollectionUrl = `${databaseUrl}/colls/${config.collections.typesId}`;
 
 
 function getContentType(id) {

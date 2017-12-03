@@ -1,15 +1,6 @@
-import * as config from "../config";
-import { DEFAULT_ID } from "../constants";
-import { Taxonomy } from "../types/taxonomy/Taxonomy";
+import { contentItemCollectionUrl, client } from "./client";
 
 const memoizee = require('memoizee');
-const docdbClient = require("../../node_modules/documentdb/index").DocumentClient;
-
-
-const client = new docdbClient(config.uri, { masterKey: config.primaryKey });
-const databaseUrl = `dbs/${config.database.id}`;
-const contentItemCollectionUrl = `${databaseUrl}/colls/${config.collections.itemsId}`;
-const contentTypeCollectionUrl = `${databaseUrl}/colls/${config.collections.typesId}`;
 
 
 
@@ -258,11 +249,20 @@ function getProjectContentItems(input) {
             });
         }
 
+        // ### comparison filter ###
+        if (input.comparisonFilter) {
+            const field = convertToFieldName(input.comparisonFilter.field);
+            queryString = queryString
+                + ` AND ${field} ${input.comparisonFilter.getAllGreaterOrLowerChoice} "${input.comparisonFilter.value}"`;
+        }
+
+
         if (input.orderBy && input.orderBy.field) {
             const field = convertToFieldName(input.orderBy.field);
             queryString = queryString + ` ORDER BY ${field} ${input.orderBy.direction}`;
         }
 
+        console.log(queryString);
         const queryJSON = {
             query: queryString,
             parameters: parameters

@@ -1,14 +1,15 @@
-import { GraphQLID, GraphQLInputObjectType, GraphQLList } from 'graphql';
+import { GraphQLNonNull, GraphQLInputObjectType } from 'graphql';
 import { NonSpecialCharactersString } from "../scalars/NonSpecialCharactersString";
+import { GreaterLowerOption } from "../scalars/GreaterLowerOption";
+import { AllowedCharactersString } from "../scalars/AllowedCharactersString";
+
 
 const ComparisonFilterInput = new GraphQLInputObjectType({
     name: 'ComparisonFilterInput',
     fields: {
-        codename: { type: NonSpecialCharactersString },
-        type: { type: NonSpecialCharactersString },
-        language_id: { type: GraphQLID },
-        language: { type: NonSpecialCharactersString },
-        sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
+        field: { type: new GraphQLNonNull(NonSpecialCharactersString) },
+        getAllGreaterOrLowerChoice: { type: new GraphQLNonNull(GreaterLowerOption) },
+        value: { type: new GraphQLNonNull(AllowedCharactersString) },
     },
 });
 
