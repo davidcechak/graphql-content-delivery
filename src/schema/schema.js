@@ -11,8 +11,10 @@ import {
 import {
     getContentTypeMemoized,
     getProjectContentTypesMemoized,
-    getItemsConditionalyMemoized,
 } from '../dataAccess/contentType';
+import {
+    getItemsConditionalyMemoized,
+} from '../dataAccess/contentItemConditionaly';
 import {
     GraphQLSchema,
     GraphQLObjectType,
@@ -20,33 +22,16 @@ import {
     GraphQLID,
     GraphQLInt,
     GraphQLNonNull,
-    GraphQLError,
-    GraphQLInputObjectType,
 } from 'graphql';
-import { OrderOption } from "../types/scalars/OrderOption";
-import { AllowedCharactersString } from "../types/scalars/AllowedCharactersString";
-import { NonSpecialCharactersString } from "../types/scalars/NonSpecialCharactersString";
 import { OrderByInput } from "../types/inputs/OrderByInput";
 import { ComparisonFilterInput } from "../types/inputs/ComparisonFilterInput";
 import { SystemInput } from "../types/inputs/SystemInput";
-
-const UnionInputType = require('graphql-union-input-type');
 
 
 const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
         name: 'Query',
         fields: () => ({
-            //ToDo: Delete unnecessary things like this one
-            contentItem: {
-                type: ContentItem,
-                args: {
-                    codename: { type: GraphQLID },
-                },
-                // root - is parent data (if it is a nested structure)
-                resolve: (root, args) => getContentItemByCodenamesMemoized(args.codename).then(response => response),
-            },
-
             contentItems: {
                 type: new GraphQLList(ContentItem),
                 args: {
@@ -66,22 +51,8 @@ const schema = new GraphQLSchema({
                     orderBy: { type: OrderByInput },
                     comparisonFilter: { type: ComparisonFilterInput },
                 },
+                // root - is parent data (if it is a nested structure)
                 resolve: (root, args) => {
-
-                    // if ((args.firstN || args.orderByLastModifiedMethod) && args.elements) {
-                    //     args.elements.map(e => {
-                    //         if (e.ordering !== null)
-                    //             throw new GraphQLError(
-                    //                 'Query error: Only one of arguments ordering method can be specified.' +
-                    //                 'And only one of the combinations element.ordering.method with ordering.firstN' +
-                    //                 ' or orderByLastModifiedMethod with firstN can be specified.'
-                    //             );
-                    //     });
-                    // }
-
-                    // ToDo: make getProjectItemsMemoized work with the new approach to elements
-                    // ToDo: add the rest of the elements
-
                     return getProjectItemsMemoized(args).then(response => {
                         if (args.depth === undefined || args.depth < 2) return response;
                         let result = response;
