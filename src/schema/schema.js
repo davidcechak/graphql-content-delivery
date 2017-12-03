@@ -2,7 +2,7 @@ import { ContentItem } from '../types/contentItem/ContentItem';
 import { ContentType } from '../types/contentType/ContentType';
 import { Taxonomy } from '../types/taxonomy/Taxonomy';
 import { LiteralInput } from "../types/inputs/LiteralInput";
-import { ContentItemElementsInput } from "../types/inputs/ContentItemElementInput";
+import { ElementInputContentItem } from "../types/inputs/ElementInputContentItem";
 import {
     getContentItemByCodenamesMemoized,
     getProjectItemsMemoized,
@@ -25,8 +25,8 @@ import {
 } from 'graphql';
 import { OrderByInput } from "../types/inputs/OrderByInput";
 import { ComparisonFilterInput } from "../types/inputs/ComparisonFilterInput";
-import { SystemInput } from "../types/inputs/SystemInput";
-import { ContentTypeElementsInput } from "../types/inputs/ContentTypeElementInput";
+import { SystemInputContentItem } from "../types/inputs/SystemInputContentItem";
+import { ElementInputContentType } from "../types/inputs/ElementInputContentType";
 
 
 const schema = new GraphQLSchema({
@@ -39,9 +39,9 @@ const schema = new GraphQLSchema({
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
                     items_ids: { type: new GraphQLList(GraphQLID) },
 
-                    system: { type: SystemInput },
+                    system: { type: SystemInputContentItem },
 
-                    elements: { type: ContentItemElementsInput },
+                    elements: { type: ElementInputContentItem },
                     /*
                         depth = 1 => first level, without any modular_content dependencies
                         2 => second level, with modular_content dependencies up to first level of depth
@@ -105,9 +105,9 @@ const schema = new GraphQLSchema({
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
                     items_ids: { type: new GraphQLList(GraphQLID) },
 
-                    elements: { type: ContentTypeElementsInput },
+                    elements: { type: ElementInputContentType },
 
-                    system: { type: SystemInput },
+                    system: { type: SystemInputContentItem },
                 },
                 resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
             },

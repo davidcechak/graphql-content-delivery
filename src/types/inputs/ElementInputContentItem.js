@@ -186,10 +186,9 @@ const RichTextInput = new GraphQLInputObjectType({
 });
 
 
-const ContentItemElementsInput = new GraphQLInputObjectType({
-    name: 'ContentItemElementsInput',
+const ElementInputContentItem = new GraphQLInputObjectType({
+    name: 'ElementInputContentItem',
     fields: {
-        // ToDo: GIve the option yo order by value OR name
         text: { type: TextInput },
         url_slug: { type: UrlSlugInput },
         date: { type: DateInput },
@@ -202,4 +201,4 @@ const ContentItemElementsInput = new GraphQLInputObjectType({
     }
 });
 
-export { ContentItemElementsInput }
+export { ElementInputContentItem }

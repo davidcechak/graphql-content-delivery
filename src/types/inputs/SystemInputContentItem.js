@@ -1,8 +1,8 @@
 import { NonSpecialCharactersString } from "../scalars/NonSpecialCharactersString";
 import { GraphQLID, GraphQLList, GraphQLInputObjectType } from "graphql";
 
-const SystemInput = new GraphQLInputObjectType({
-    name: 'SystemInput',
+const SystemInputContentItem = new GraphQLInputObjectType({
+    name: 'SystemInputContentItem',
     fields: {
         codename: { type: NonSpecialCharactersString },
         type: { type: NonSpecialCharactersString },
@@ -13,4 +13,4 @@ const SystemInput = new GraphQLInputObjectType({
 });
 
 
-export { SystemInput }
+export { SystemInputContentItem }

@@ -102,8 +102,8 @@ const RichTextInput = new GraphQLInputObjectType({
 });
 
 
-const ContentTypeElementsInput = new GraphQLInputObjectType({
-    name: 'ContentTypeElementsInput',
+const ElementInputContentType = new GraphQLInputObjectType({
+    name: 'ElementInputContentType',
     fields: {
         text: { type: TextInput },
         url_slug: { type: UrlSlugInput },
@@ -117,4 +117,4 @@ const ContentTypeElementsInput = new GraphQLInputObjectType({
     }
 });
 
-export { ContentTypeElementsInput }
+export { ElementInputContentType }
