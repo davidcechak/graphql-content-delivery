@@ -9,6 +9,8 @@ const SystemInputContentItem = new GraphQLInputObjectType({
         language_id: { type: GraphQLID },
         language: { type: NonSpecialCharactersString },
         sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
+        // ToDo: date scalar type
+        last_modified: { type: NonSpecialCharactersString }
     },
 });
 

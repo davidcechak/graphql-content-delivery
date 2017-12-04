@@ -2,6 +2,7 @@ import { GraphQLInputObjectType, GraphQLInt, GraphQLNonNull, GraphQLList, GraphQ
 import { AllowedCharactersString } from "../scalars/AllowedCharactersString";
 import { OrderOption } from "../scalars/OrderOption";
 import { NonSpecialCharactersString } from "../scalars/NonSpecialCharactersString";
+import { NameCodenamePair } from "./NameCodenamePair";
 
 /*
     Element key and element type are only known by the user during the runtime.
@@ -10,8 +11,8 @@ import { NonSpecialCharactersString } from "../scalars/NonSpecialCharactersStrin
  */
 
 
-const UrlSlugInput = new GraphQLInputObjectType({
-    name: 'UrlSlug',
+const UrlSlugContentTypeInput = new GraphQLInputObjectType({
+    name: 'UrlSlugContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -19,8 +20,8 @@ const UrlSlugInput = new GraphQLInputObjectType({
 });
 
 
-const TextInput = new GraphQLInputObjectType({
-    name: 'Text',
+const TextContentTypeInput = new GraphQLInputObjectType({
+    name: 'TextContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -28,8 +29,8 @@ const TextInput = new GraphQLInputObjectType({
 });
 
 
-const DateInput = new GraphQLInputObjectType({
-    name: 'Date',
+const DateContentTypeInput = new GraphQLInputObjectType({
+    name: 'DateContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -37,8 +38,8 @@ const DateInput = new GraphQLInputObjectType({
 });
 
 
-const ModularContentInput = new GraphQLInputObjectType({
-    name: 'ModularContentInput',
+const ModularContentContentTypeInput = new GraphQLInputObjectType({
+    name: 'ModularContentContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -46,8 +47,8 @@ const ModularContentInput = new GraphQLInputObjectType({
 });
 
 
-const NumberElementInput = new GraphQLInputObjectType({
-    name: 'NumberElementInput',
+const NumberElementContentTypeInput = new GraphQLInputObjectType({
+    name: 'NumberElementContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -55,17 +56,8 @@ const NumberElementInput = new GraphQLInputObjectType({
 });
 
 
-const NameCodenamePair = new GraphQLInputObjectType({
-    name: 'NameCodenamePair',
-    fields: {
-        name: { type: AllowedCharactersString },
-        codename: { type: AllowedCharactersString },
-    }
-});
-
-
-const TaxonomyInput = new GraphQLInputObjectType({
-    name: 'TaxonomyInput',
+const TaxonomyContentTypeInput = new GraphQLInputObjectType({
+    name: 'TaxonomyContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -74,8 +66,8 @@ const TaxonomyInput = new GraphQLInputObjectType({
 });
 
 
-const MultipleChoiceInput = new GraphQLInputObjectType({
-    name: 'MultipleChoiceInput',
+const MultipleChoiceContentTypeInput = new GraphQLInputObjectType({
+    name: 'MultipleChoiceContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -84,8 +76,8 @@ const MultipleChoiceInput = new GraphQLInputObjectType({
 });
 
 
-const AssetInput = new GraphQLInputObjectType({
-    name: 'AssetInput',
+const AssetContentTypeInput = new GraphQLInputObjectType({
+    name: 'AssetContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -93,8 +85,8 @@ const AssetInput = new GraphQLInputObjectType({
 });
 
 
-const RichTextInput = new GraphQLInputObjectType({
-    name: 'RichTextInput',
+const RichTextContentTypeInput = new GraphQLInputObjectType({
+    name: 'RichTextContentType',
     fields: {
         key: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         name: { type: AllowedCharactersString },
@@ -105,15 +97,15 @@ const RichTextInput = new GraphQLInputObjectType({
 const ElementInputContentType = new GraphQLInputObjectType({
     name: 'ElementInputContentType',
     fields: {
-        text: { type: TextInput },
-        url_slug: { type: UrlSlugInput },
-        date: { type: DateInput },
-        number: { type: NumberElementInput },
-        modular_content: { type: ModularContentInput },
-        taxonomy: {type: TaxonomyInput},
-        multiple_choice: {type: MultipleChoiceInput},
-        asset: {type: AssetInput},
-        rich_text: {type: RichTextInput},
+        text: { type: TextContentTypeInput },
+        url_slug: { type: UrlSlugContentTypeInput },
+        date: { type: DateContentTypeInput },
+        number: { type: NumberElementContentTypeInput },
+        modular_content: { type: ModularContentContentTypeInput },
+        taxonomy: {type: TaxonomyContentTypeInput},
+        multiple_choice: {type: MultipleChoiceContentTypeInput},
+        asset: {type: AssetContentTypeInput},
+        rich_text: {type: RichTextContentTypeInput},
     }
 });
 

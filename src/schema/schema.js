@@ -27,6 +27,8 @@ import { OrderByInput } from "../types/inputs/OrderByInput";
 import { ComparisonFilterInput } from "../types/inputs/ComparisonFilterInput";
 import { SystemInputContentItem } from "../types/inputs/SystemInputContentItem";
 import { ElementInputContentType } from "../types/inputs/ElementInputContentType";
+import { SystemInputContentType } from "../types/inputs/SystemInputContentType";
+import { TermInput } from "../types/inputs/TermInput";
 
 
 const schema = new GraphQLSchema({
@@ -104,32 +106,24 @@ const schema = new GraphQLSchema({
                 args: {
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
                     items_ids: { type: new GraphQLList(GraphQLID) },
-
                     elements: { type: ElementInputContentType },
-
-                    system: { type: SystemInputContentItem },
+                    system: { type: SystemInputContentType },
                 },
-                resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
+                resolve: (root, args) => getProjectContentTypesMemoized(args, 'ContentType').then(response => response),
             },
 
-            //ToDo: Move querying one and more Taxonomies into single method
-            taxonomy: {
-                type: Taxonomy,
-                args: {
-                    id: { type: GraphQLID },
-                },
-                resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
-            },
-
-            projectTaxonomies: {
+            taxonomies: {
                 type: new GraphQLList(Taxonomy),
                 args: {
-                    project_id: { type: GraphQLID },
+                    project_id: { type: new GraphQLNonNull(GraphQLID) },
+                    items_ids: { type: new GraphQLList(GraphQLID) },
+                    terms: { type: new GraphQLList(TermInput) },
+                    system: { type: SystemInputContentType },
                 },
-                resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
+                resolve: (root, args) => getProjectContentTypesMemoized(args, 'TaxonomyGroup').then(response => response),
             },
 
-            disjunctiveNormalForm: {
+            disjunctiveNormalFormContentItems: {
                 type: new GraphQLList(ContentItem),
                 args: {
                     conjunctiveClauses: {
