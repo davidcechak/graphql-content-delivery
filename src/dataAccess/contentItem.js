@@ -129,12 +129,12 @@ function getProjectContentItems(input) {
                     const sitemapValues = Object.values(input.system[key]);
 
                     sitemapValues.map((value, sitemapIndex) => {
-                        queryString = queryString + ` AND ARRAY_CONTAINS(i.${key}, @${key}${sitemapIndex})`;
+                        queryString = queryString + ` AND ARRAY_CONTAINS(i.system.${key}, @${key}${sitemapIndex})`;
                         parameters.push({ name: `@${key}${sitemapIndex}`, value: value });
                     });
                 }
                 else {
-                    queryString = queryString + ` AND i.${key} = @${key}`;
+                    queryString = queryString + ` AND i.system.${key} = @${key}`;
                     parameters.push({ name: `@${key}`, value: input.system[key] });
                 }
             });
