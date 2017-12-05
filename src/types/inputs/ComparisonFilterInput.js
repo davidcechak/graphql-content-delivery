@@ -5,7 +5,7 @@ import { AllowedCharactersString } from "../scalars/AllowedCharactersString";
 
 
 const ComparisonFilterInput = new GraphQLInputObjectType({
-    name: 'ComparisonFilterInput',
+    name: 'ComparisonFilter',
     fields: {
         field: { type: new GraphQLNonNull(NonSpecialCharactersString) },
         getAllGreaterOrLowerChoice: { type: new GraphQLNonNull(GreaterLowerOption) },

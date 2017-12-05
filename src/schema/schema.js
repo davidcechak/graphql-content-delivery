@@ -2,7 +2,7 @@ import { ContentItem } from '../types/contentItem/ContentItem';
 import { ContentType } from '../types/contentType/ContentType';
 import { Taxonomy } from '../types/taxonomy/Taxonomy';
 import { LiteralInput } from "../types/inputs/LiteralInput";
-import { ElementsInput } from "../types/inputs/ElementInput";
+import { ElementInputContentItem } from "../types/inputs/ElementInputContentItem";
 import {
     getContentItemByCodenamesMemoized,
     getProjectItemsMemoized,
@@ -25,7 +25,10 @@ import {
 } from 'graphql';
 import { OrderByInput } from "../types/inputs/OrderByInput";
 import { ComparisonFilterInput } from "../types/inputs/ComparisonFilterInput";
-import { SystemInput } from "../types/inputs/SystemInput";
+import { SystemInputContentItem } from "../types/inputs/SystemInputContentItem";
+import { ElementInputContentType } from "../types/inputs/ElementInputContentType";
+import { SystemInputContentType } from "../types/inputs/SystemInputContentType";
+import { TermInput } from "../types/inputs/TermInput";
 
 
 const schema = new GraphQLSchema({
@@ -38,9 +41,9 @@ const schema = new GraphQLSchema({
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
                     items_ids: { type: new GraphQLList(GraphQLID) },
 
-                    system: { type: SystemInput },
+                    system: { type: SystemInputContentItem },
 
-                    elements: { type: ElementsInput },
+                    elements: { type: ElementInputContentItem },
                     /*
                         depth = 1 => first level, without any modular_content dependencies
                         2 => second level, with modular_content dependencies up to first level of depth
@@ -97,40 +100,30 @@ const schema = new GraphQLSchema({
             },
 
             //ToDo: Move querying one and more contentTypes into single method
-            contentType: {
-                type: ContentType,
-                args: {
-                    id: { type: GraphQLID },
-                },
-                resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
-            },
 
             contentTypes: {
                 type: new GraphQLList(ContentType),
                 args: {
-                    project_id: { type: GraphQLID },
+                    project_id: { type: new GraphQLNonNull(GraphQLID) },
+                    items_ids: { type: new GraphQLList(GraphQLID) },
+                    elements: { type: ElementInputContentType },
+                    system: { type: SystemInputContentType },
                 },
-                resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
+                resolve: (root, args) => getProjectContentTypesMemoized(args, 'ContentType').then(response => response),
             },
 
-            //ToDo: Move querying one and more Taxonomies into single method
-            taxonomy: {
-                type: Taxonomy,
-                args: {
-                    id: { type: GraphQLID },
-                },
-                resolve: (root, args) => getContentTypeMemoized(args.id).then(response => response),
-            },
-
-            projectTaxonomies: {
+            taxonomies: {
                 type: new GraphQLList(Taxonomy),
                 args: {
-                    project_id: { type: GraphQLID },
+                    project_id: { type: new GraphQLNonNull(GraphQLID) },
+                    items_ids: { type: new GraphQLList(GraphQLID) },
+                    terms: { type: new GraphQLList(TermInput) },
+                    system: { type: SystemInputContentType },
                 },
-                resolve: (root, args) => getProjectContentTypesMemoized(args.project_id).then(response => response),
+                resolve: (root, args) => getProjectContentTypesMemoized(args, 'TaxonomyGroup').then(response => response),
             },
 
-            disjunctiveNormalForm: {
+            disjunctiveNormalFormContentItems: {
                 type: new GraphQLList(ContentItem),
                 args: {
                     conjunctiveClauses: {
