@@ -6,7 +6,6 @@ const SystemInputContentItem = new GraphQLInputObjectType({
     fields: {
         codename: { type: NonSpecialCharactersString },
         type: { type: NonSpecialCharactersString },
-        language_id: { type: GraphQLID },
         language: { type: NonSpecialCharactersString },
         sitemap_locations: { type: new GraphQLList(NonSpecialCharactersString) },
         // ToDo: date scalar type

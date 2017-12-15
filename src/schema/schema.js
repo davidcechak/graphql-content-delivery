@@ -40,6 +40,7 @@ const schema = new GraphQLSchema({
                 args: {
                     project_id: { type: new GraphQLNonNull(GraphQLID) },
                     items_ids: { type: new GraphQLList(GraphQLID) },
+                    language_id: { type: GraphQLID },
 
                     system: { type: SystemInputContentItem },
 
@@ -72,7 +73,9 @@ const schema = new GraphQLSchema({
                         console.log('modularContents => ', modularContents);
 
                         // ask for modular contents
-
+                        if(modularContents.size === 0){
+                            return response
+                        }
                         return getContentItemByCodenamesMemoized(args.project_id, modularContents)
                             .then(modularsFromDB => {
 
@@ -123,6 +126,7 @@ const schema = new GraphQLSchema({
                 resolve: (root, args) => getProjectContentTypesMemoized(args, 'TaxonomyGroup').then(response => response),
             },
 
+            //ToDO: rename to something more understandable - f.e. disjunctive clauses, , zeptat se Jiriho?
             disjunctiveNormalFormContentItems: {
                 type: new GraphQLList(ContentItem),
                 args: {

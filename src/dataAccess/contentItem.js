@@ -1,4 +1,5 @@
 import { contentItemCollectionUrl, client } from "./client";
+import { DEFAULT_ID } from "../constants";
 
 const memoizee = require('memoizee');
 
@@ -120,6 +121,15 @@ function getProjectContentItems(input) {
                 }
             });
         }
+
+
+        // ### language ###
+        // query by default language if no language is specified
+        if(input.system.language === undefined && input.language_id === undefined){
+            parameters.push({ name: "@languageId", value: DEFAULT_ID });
+            queryString = queryString + ` AND i.language_id = @languageId`;
+        }
+
 
         // ### system ###
         if (input.system) {
