@@ -24,8 +24,6 @@ function getContentItemsByCodenames(projectId, codenamesMap) {
             }
         });
 
-        console.log(queryString);
-
         client.queryDocuments(contentItemCollectionUrl, queryString)
             .toArray((err, results) => {
                 if (err) {
@@ -49,16 +47,12 @@ function parseModularContent(object, modularContents){
 
     if (object['type'] === 'modular_content' && object['value']){
         modularContents.push(...object['value']);
-        console.log(object['value']);
-        console.log('modularContents:  ', modularContents);
     }
     keys.map((key) => {
 
         if (!!object[key] && typeof(object[key]) === "object") {
             if (key === 'modular_content' && object[key]) {
                 modularContents.push(...object[key]);
-                console.log(object[key]);
-                console.log('modularContents:  ', modularContents);
             }
             parseModularContent(object[key], modularContents);
         }
@@ -95,7 +89,6 @@ const convertToFieldName = (userInput) => {
 };
 
 
-// ToDo: remove (debugging purpose) console.logs and '\n' at the end of queryString insertions
 function getProjectContentItems(input) {
     return new Promise((resolve, reject) => {
         const parameters = [
@@ -272,13 +265,10 @@ function getProjectContentItems(input) {
             queryString = queryString + ` ORDER BY ${field} ${input.orderBy.direction}`;
         }
 
-        console.log(queryString);
         const queryJSON = {
             query: queryString,
             parameters: parameters
         };
-
-        console.log(queryJSON);
 
         client.queryDocuments(contentItemCollectionUrl, queryJSON).toArray((err, results) => {
             if (err) {
@@ -298,8 +288,11 @@ function getProjectContentItems(input) {
 
 
 // Could be set to pre-fetch, before it expires. { maxAge: 1000, preFetch: true } default is preFetch: 0.33
-const getProjectItemsMemoized = memoizee(getProjectContentItems, { maxAge: 5000 });
-const getContentItemByCodenamesMemoized = memoizee(getContentItemsByCodenames, { maxAge: 5000 });
+// const getProjectItemsMemoized = memoizee(getProjectContentItems, { maxAge: 5000 });
+// const getContentItemByCodenamesMemoized = memoizee(getContentItemsByCodenames, { maxAge: 5000 });
+
+const getProjectItemsMemoized = getProjectContentItems;
+const getContentItemByCodenamesMemoized = getContentItemsByCodenames;
 
 export {
     getProjectItemsMemoized,
